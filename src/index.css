@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Цветовая палитра сервиса «РИТМ» */
+  --bg-main: #0B0C10;
+  --bg-card: #14161D;
+  --bg-card-elevated: #1A1D27;
+  --bg-card-surface: #1F222E;
+  
+  --brand-red: #EF233C;
+  --brand-bright-red: #FF2A4B;
+  --brand-glow: rgba(239, 35, 60, 0.45);
+  
+  --status-cancel-bg: rgba(225, 29, 72, 0.18);
+  --status-cancel-text: #FB7185;
+  --status-cancel-border: rgba(225, 29, 72, 0.35);
+  
+  --status-ok-bg: rgba(16, 185, 129, 0.18);
+  --status-ok-text: #34D399;
+  --status-ok-border: rgba(16, 185, 129, 0.35);
+  
+  --status-deadline-bg: rgba(245, 158, 11, 0.22);
+  --status-deadline-text: #FBBF24;
+  --status-deadline-border: rgba(245, 158, 11, 0.4);
+
+  --btn-present: #059669;
+  --btn-late: #B45309;
+  --btn-excuse: #4F46E5;
+  --btn-absent: #991B1B;
+  
+  --text-primary: #FFFFFF;
+  --text-secondary: #9CA3AF;
+  --text-dimmed: #6B7280;
+  
+  --radius-card: 20px;
+  --radius-btn: 14px;
+  --radius-pill: 9999px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Скрытие системных скроллбаров для плавного нативного мобильного свайпа */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Учет безопасной зоны на iOS / Telegram WebApp */
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom, 16px), 16px);
+}
+.pt-safe {
+  padding-top: max(env(safe-area-inset-top, 0px), 0px);
+}
+
+/* Плавные переходы для интерактивных элементов */
+button {
+  touch-action: manipulation;
+}
