@@ -51,6 +51,7 @@ body {
   -webkit-user-select: none;
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
 }
 
 /* Скрытие системных скроллбаров для плавного нативного мобильного свайпа */
@@ -73,4 +74,20 @@ body {
 /* Плавные переходы для интерактивных элементов */
 button {
   touch-action: manipulation;
+}
+
+/* Планетарное атмосферное свечение в правом верхнем углу (в точности как на скриншоте) */
+.planet-glow-arc {
+  position: absolute;
+  top: -180px;
+  right: -100px;
+  width: 750px;
+  height: 480px;
+  border-radius: 50%;
+  border-top: 2px solid rgba(239, 35, 60, 0.85);
+  box-shadow: 0 -12px 60px 8px rgba(239, 35, 60, 0.35), inset 0 20px 80px rgba(239, 35, 60, 0.15);
+  filter: blur(0.5px);
+  pointer-events: none;
+  z-index: 1;
+  transform: rotate(-12deg);
 }

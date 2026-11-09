@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Clock, MapPin, User } from 'lucide-react';
+import { Clock, MapPin, User, Info } from 'lucide-react';
 import { FULL_WEEK_SCHEDULE } from '../data/mockData';
 import { Lesson } from '../types';
 
@@ -77,7 +77,7 @@ export const ScheduleView: React.FC = () => {
       <div className="space-y-3">
         {activeDay.lessons.length === 0 ? (
           <div className="p-8 text-center text-gray-400 bg-[#14161D] rounded-2xl border border-white/[0.08]">
-            В этот день пар нет. Можно отдохнуть! 🎉
+            В этот день пар нет.
           </div>
         ) : (
           activeDay.lessons.map((lesson) => (
@@ -116,8 +116,9 @@ export const ScheduleView: React.FC = () => {
               </div>
 
               {lesson.note && (
-                <div className="text-xs text-gray-300 p-2.5 rounded-xl bg-[#1A1D27] border border-white/5">
-                  💡 {lesson.note}
+                <div className="text-xs text-gray-300 p-2.5 rounded-xl bg-[#1A1D27] border border-white/5 flex items-start gap-2">
+                  <Info className="w-3.5 h-3.5 text-[#EF233C] shrink-0 mt-0.5" />
+                  <span>{lesson.note}</span>
                 </div>
               )}
             </div>

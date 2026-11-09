@@ -38,13 +38,13 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     const excuse = MOCK_STUDENTS.filter((s) => s.status === 'excuse').length;
     const absent = MOCK_STUDENTS.filter((s) => s.status === 'absent').length;
 
-    let text = `📊 Отчет переклички — Группа ${CURRENT_WEEK_INFO.groupName}\n`;
+    let text = `Отчет переклички — Группа ${CURRENT_WEEK_INFO.groupName}\n`;
     text += `Дата: ${CURRENT_WEEK_INFO.dayOfWeek}, ${CURRENT_WEEK_INFO.dateFormatted}\n\n`;
-    text += `✅ На парах: ${present}\n`;
-    text += `⏰ Опаздывают: ${late}\n`;
-    text += `🛡 Уважительная: ${excuse}\n`;
-    text += `❌ Отсутствуют: ${absent}\n\n`;
-    text += `📋 Пофамильный список:\n`;
+    text += `[+] На парах: ${present}\n`;
+    text += `[~] Опаздывают: ${late}\n`;
+    text += `[?] Уважительная: ${excuse}\n`;
+    text += `[-] Отсутствуют: ${absent}\n\n`;
+    text += `Пофамильный список:\n`;
 
     MOCK_STUDENTS.forEach((s, idx) => {
       text += `${idx + 1}. ${s.name} — ${getStatusText(s.status)}\n`;

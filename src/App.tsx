@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Calendar, ChevronDown } from 'lucide-react';
 import { useTelegram } from './hooks/useTelegram';
 import { HomeView } from './views/HomeView';
 import { ScheduleView } from './views/ScheduleView';
@@ -46,13 +47,13 @@ export const App: React.FC = () => {
 
   const handleOpenContacts = () => {
     triggerHaptic('light');
-    showNotification('Контакты деканата: +7 (495) 123-45-67, dekanat@university.ru');
+    showNotification('Контакты деканата: +7 (495) 123-45-67, dekanat@university.ru, каб. 204');
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0C10] text-white flex justify-center relative overflow-x-hidden">
-      {/* Декоративное фоновое свечение красной планеты/орбиты (как на скриншоте) */}
-      <div className="absolute top-0 right-0 w-[500px] h-[300px] pointer-events-none opacity-40 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#EF233C]/40 via-[#EF233C]/10 to-transparent blur-3xl z-0" />
+    <div className="min-h-screen bg-[#0B0C10] text-white flex justify-center relative overflow-x-hidden selection:bg-[#EF233C] selection:text-white">
+      {/* Декоративная светящаяся орбита РИТМ (в точности как на скриншоте) */}
+      <div className="planet-glow-arc" />
 
       {/* Оболочка приложения */}
       <div className="w-full max-w-7xl mx-auto flex min-h-screen relative z-10">
@@ -66,38 +67,40 @@ export const App: React.FC = () => {
 
           {/* Центральный контент */}
           <main className="flex-1 p-8 overflow-y-auto">
-            {/* Большой промо-заголовок со слоганом со скриншота */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="px-4 py-1.5 rounded-full bg-[#1A1D27] border border-white/10 text-xs font-medium text-gray-200 flex items-center gap-2">
-                    <span>📅</span>
-                    <span>{`${CURRENT_WEEK_INFO.dayOfWeek}, ${CURRENT_WEEK_INFO.dateFormatted}`}</span>
-                  </div>
-                  <div className="px-4 py-1.5 rounded-full bg-[#1A1D27] border border-white/10 text-xs font-medium text-gray-300">
-                    {CURRENT_WEEK_INFO.weekType}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1A1D27] border border-white/10">
-                  <div className="w-7 h-7 rounded-full bg-[#EF233C] flex items-center justify-center text-xs font-bold text-white">
-                    {userInitials}
-                  </div>
-                  <span className="text-xs font-semibold text-gray-300">
-                    {CURRENT_WEEK_INFO.groupName}
-                  </span>
+            {/* Верхняя строка с датой и профилем */}
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={() => handleTabChange('schedule')}
+                  className="px-4 py-1.5 rounded-full bg-[#1A1D27] hover:bg-[#222634] border border-white/10 text-xs font-medium text-gray-200 flex items-center gap-2 transition-colors cursor-pointer"
+                >
+                  <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                  <span>{`${CURRENT_WEEK_INFO.dayOfWeek}, ${CURRENT_WEEK_INFO.dateFormatted}`}</span>
+                </button>
+                <div className="px-4 py-1.5 rounded-full bg-[#1A1D27] border border-white/10 text-xs font-medium text-gray-300">
+                  {CURRENT_WEEK_INFO.weekType}
                 </div>
               </div>
 
-              <h1 className="text-4xl font-extrabold font-['Unbounded'] tracking-wider text-white uppercase mb-1">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1A1D27] border border-white/10 cursor-pointer hover:border-white/20 transition-colors">
+                <div className="w-6 h-6 rounded-full bg-[#EF233C] flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
+                  {userInitials}
+                </div>
+                <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+              </div>
+            </div>
+
+            {/* Большой промо-заголовок со слоганом со скриншота */}
+            <div className="mb-7">
+              <h1 className="text-4xl font-extrabold font-['Unbounded'] tracking-wider text-white uppercase mb-1.5 drop-shadow-md">
                 РИТМ
               </h1>
-              <p className="text-sm text-gray-400 font-medium">
+              <p className="text-sm text-[#8E95A5] font-medium">
                 Отмены, расписание и перекличка работают сами
               </p>
             </div>
 
-            {/* В зависимости от таба */}
+            {/* В зависимости от активного таба */}
             {activeTab === 'home' && (
               <div className="grid grid-cols-12 gap-6 items-start">
                 <div className="col-span-8 space-y-6">
@@ -118,8 +121,8 @@ export const App: React.FC = () => {
                     onNavigateTab={handleTabChange}
                     onOpenContacts={handleOpenContacts}
                   />
-                  <div className="text-right pt-8">
-                    <span className="text-[11px] text-gray-500 font-medium block">
+                  <div className="text-right pt-4 pr-1">
+                    <span className="text-xs font-bold text-gray-500 font-['Unbounded'] tracking-wider block">
                       РИТМ
                     </span>
                     <span className="text-[10px] text-gray-600">всегда рядом</span>
