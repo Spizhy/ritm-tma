@@ -19,20 +19,21 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   ];
 
   return (
-    <aside className="w-56 shrink-0 flex flex-col justify-between py-6 px-4 border-r border-white/[0.08] min-h-[600px]">
+    <aside className="w-64 shrink-0 flex flex-col justify-between py-8 px-5 border-r border-white/[0.07] min-h-[660px]">
       <div>
-        {/* Логотип РИТМ */}
-        <div className="flex items-center gap-2 mb-8 px-2">
-          <div className="flex items-center text-[#EF233C] text-2xl font-black italic tracking-tighter">
-            <span>//</span>
+        {/* Логотип РИТМ со скошенными красными полосками (1 в 1 со скриншота) */}
+        <div className="mb-10 px-2 cursor-pointer select-none" onClick={() => onSelectTab('home')}>
+          <div className="flex items-center gap-1.5 mb-2">
+            <div className="w-2 h-7 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
+            <div className="w-2 h-7 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
           </div>
-          <span className="font-['Unbounded'] font-black text-xl tracking-wider text-white uppercase">
+          <div className="font-['NauryzRedKeds','Unbounded',sans-serif] text-3xl tracking-widest text-white leading-none">
             РИТМ
-          </span>
+          </div>
         </div>
 
         {/* Навигация */}
-        <nav className="space-y-1.5">
+        <nav className="space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.key;
@@ -41,15 +42,15 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
               <button
                 key={item.key}
                 onClick={() => onSelectTab(item.key)}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all select-none ${
+                className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all select-none cursor-pointer ${
                   isActive
-                    ? 'bg-[#3A141A] text-white border border-[#EF233C]/30 shadow-[0_0_15px_rgba(239,35,60,0.2)]'
-                    : 'text-gray-400 hover:text-gray-200 hover:bg-[#161822]'
+                    ? 'bg-[#301319] text-white border border-[#EF233C]/40 shadow-[0_0_20px_rgba(239,35,60,0.22)]'
+                    : 'text-[#8E95A5] hover:text-white hover:bg-[#161822]'
                 }`}
               >
                 <Icon
                   className={`w-4 h-4 ${
-                    isActive ? 'text-[#EF233C]' : 'text-gray-400'
+                    isActive ? 'text-[#EF233C]' : 'text-[#8E95A5]'
                   }`}
                 />
                 <span>{item.label}</span>
@@ -60,13 +61,11 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
       </div>
 
       {/* Индикатор стабильности системы */}
-      <div className="px-2 pt-6 border-t border-white/[0.06]">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10B981]" />
-          <span className="text-[11px] text-gray-400 font-medium">
-            Система работает стабильно
-          </span>
-        </div>
+      <div className="px-2 pt-6 border-t border-white/[0.06] flex items-center gap-2.5">
+        <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10B981]" />
+        <span className="text-[11px] text-[#8E95A5] font-medium leading-none">
+          Система работает стабильно
+        </span>
       </div>
     </aside>
   );

@@ -14,23 +14,24 @@ export const Header: React.FC<HeaderProps> = ({
   showDesktopProfile = false,
 }) => {
   return (
-    <header className="w-full pt-2 pb-4">
+    <header className="w-full pt-1 pb-4">
       {/* Верхний ряд: Логотип и Telegram-контролы / Аватар */}
       <div className="flex items-center justify-between mb-4">
-        {/* Фирменный логотип с красным двойным слешем */}
+        {/* Фирменный логотип с красными скошенными полосками (как на скриншоте) */}
         <div className="flex items-center gap-2 select-none group cursor-pointer">
-          <div className="flex items-center text-[#EF233C] text-2xl font-black italic tracking-tighter">
-            <span>//</span>
+          <div className="flex items-center gap-1">
+            <div className="w-1.5 h-5 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
+            <div className="w-1.5 h-5 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
           </div>
-          <span className="font-['Unbounded'] font-black text-xl tracking-wider text-white uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+          <span className="font-['NauryzRedKeds','Unbounded',sans-serif] text-xl tracking-widest text-white uppercase leading-none drop-shadow-md">
             РИТМ
           </span>
         </div>
 
-        {/* Профиль для десктопа или заглушка для мобильного */}
+        {/* Профиль для десктопа или аватар для мобильного */}
         {showDesktopProfile ? (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1A1D27] border border-white/10 hover:border-white/20 transition-colors cursor-pointer">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#EF233C] to-[#FF2A4B] flex items-center justify-center text-xs font-bold text-white shadow-sm">
+            <div className="w-6 h-6 rounded-full bg-[#EF233C] flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
               {userInitials}
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
@@ -48,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-0.5">
         <button
           onClick={onOpenSchedule}
-          className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1A1D27] border border-white/10 text-xs font-medium text-gray-200 hover:bg-[#222634] active:scale-95 transition-all whitespace-nowrap shadow-sm"
+          className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1A1D27] border border-white/10 text-xs font-medium text-gray-200 hover:bg-[#222634] active:scale-95 transition-all whitespace-nowrap shadow-sm cursor-pointer"
         >
           <Calendar className="w-3.5 h-3.5 text-gray-400" />
           <span>{`${CURRENT_WEEK_INFO.dayOfWeek}, ${CURRENT_WEEK_INFO.dateFormatted}`}</span>

@@ -2,10 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'NauryzRedKeds';
+  src: url('/fonts/NauryzRedKeds.ttf') format('truetype'),
+       url('./fonts/NauryzRedKeds.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* Цветовая палитра сервиса «РИТМ» */
   --bg-main: #0B0C10;
-  --bg-card: #14161D;
+  --bg-card: #13151B;
   --bg-card-elevated: #1A1D27;
   --bg-card-surface: #1F222E;
   
@@ -13,25 +22,25 @@
   --brand-bright-red: #FF2A4B;
   --brand-glow: rgba(239, 35, 60, 0.45);
   
-  --status-cancel-bg: rgba(225, 29, 72, 0.18);
-  --status-cancel-text: #FB7185;
-  --status-cancel-border: rgba(225, 29, 72, 0.35);
+  --status-cancel-bg: #351219;
+  --status-cancel-text: #EF233C;
+  --status-cancel-border: rgba(239, 35, 60, 0.5);
   
-  --status-ok-bg: rgba(16, 185, 129, 0.18);
-  --status-ok-text: #34D399;
-  --status-ok-border: rgba(16, 185, 129, 0.35);
+  --status-ok-bg: #093325;
+  --status-ok-text: #10B981;
+  --status-ok-border: rgba(16, 185, 129, 0.5);
   
-  --status-deadline-bg: rgba(245, 158, 11, 0.22);
-  --status-deadline-text: #FBBF24;
-  --status-deadline-border: rgba(245, 158, 11, 0.4);
+  --status-deadline-bg: #38200B;
+  --status-deadline-text: #F59E0B;
+  --status-deadline-border: rgba(245, 158, 11, 0.5);
 
   --btn-present: #059669;
   --btn-late: #B45309;
   --btn-excuse: #4F46E5;
-  --btn-absent: #991B1B;
+  --btn-absent: #DC2626;
   
   --text-primary: #FFFFFF;
-  --text-secondary: #9CA3AF;
+  --text-secondary: #8E95A5;
   --text-dimmed: #6B7280;
   
   --radius-card: 20px;
@@ -54,6 +63,10 @@ body {
   overflow-x: hidden;
 }
 
+.font-brand {
+  font-family: 'NauryzRedKeds', 'Unbounded', sans-serif;
+}
+
 /* Скрытие системных скроллбаров для плавного нативного мобильного свайпа */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -71,23 +84,20 @@ body {
   padding-top: max(env(safe-area-inset-top, 0px), 0px);
 }
 
-/* Плавные переходы для интерактивных элементов */
 button {
   touch-action: manipulation;
 }
 
-/* Планетарное атмосферное свечение в правом верхнем углу (в точности как на скриншоте) */
-.planet-glow-arc {
+/* Архитектурное свечение дуги горизонта РИТМ из сайта */
+.horizon-glow {
   position: absolute;
-  top: -180px;
+  top: -120px;
   right: -100px;
-  width: 750px;
-  height: 480px;
+  width: 850px;
+  height: 380px;
   border-radius: 50%;
-  border-top: 2px solid rgba(239, 35, 60, 0.85);
-  box-shadow: 0 -12px 60px 8px rgba(239, 35, 60, 0.35), inset 0 20px 80px rgba(239, 35, 60, 0.15);
-  filter: blur(0.5px);
+  background: radial-gradient(ellipse at center, rgba(239, 35, 60, 0.32) 0%, rgba(153, 27, 27, 0.12) 48%, rgba(0, 0, 0, 0) 75%);
+  filter: blur(45px);
   pointer-events: none;
   z-index: 1;
-  transform: rotate(-12deg);
 }

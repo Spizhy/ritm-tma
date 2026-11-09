@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#0B0C10" />
-  <title>РИТМ — Telegram Mini App</title>
+  <title>РИТМ — Автопилот расписания и переклички</title>
 
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -24,9 +24,8 @@
           colors: {
             ritm: {
               dark: '#0B0C10',
-              card: '#14161D',
+              card: '#13151B',
               elevated: '#1A1D27',
-              surface: '#1F222E',
               red: '#EF233C',
               brightRed: '#FF2A4B',
               muted: '#8E95A5',
@@ -35,35 +34,48 @@
           },
           fontFamily: {
             sans: ['Inter', '-apple-system', 'sans-serif'],
-            display: ['Unbounded', 'sans-serif'],
+            brand: ['NauryzRedKeds', 'Unbounded', 'sans-serif'],
           }
         }
       }
     }
   </script>
 
-  <!-- React 18 & Babel for standalone instant preview -->
+  <!-- React 18 & Babel for instant preview without npm -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
+    @font-face {
+      font-family: 'NauryzRedKeds';
+      src: url('fonts/NauryzRedKeds.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
     :root {
       --bg-main: #0B0C10;
-      --bg-card: #14161D;
+      --bg-card: #13151B;
       --brand-red: #EF233C;
     }
+
     body {
       background-color: #0B0C10;
       color: #ffffff;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
       overflow-x: hidden;
+      margin: 0;
+      padding: 0;
     }
-    .font-unbounded {
-      font-family: 'Unbounded', sans-serif;
+
+    .font-brand {
+      font-family: 'NauryzRedKeds', 'Unbounded', sans-serif;
     }
+
     .pb-safe {
       padding-bottom: max(env(safe-area-inset-bottom, 16px), 16px);
     }
@@ -75,20 +87,18 @@
       scrollbar-width: none;
     }
 
-    /* Планетарное атмосферное свечение в правом верхнем углу (в точности как на скриншоте) */
-    .planet-glow-arc {
+    /* Архитектурное свечение дуги горизонта РИТМ из сайта */
+    .horizon-glow {
       position: absolute;
-      top: -180px;
+      top: -120px;
       right: -100px;
-      width: 750px;
-      height: 480px;
+      width: 850px;
+      height: 380px;
       border-radius: 50%;
-      border-top: 2px solid rgba(239, 35, 60, 0.85);
-      box-shadow: 0 -12px 60px 8px rgba(239, 35, 60, 0.35), inset 0 20px 80px rgba(239, 35, 60, 0.15);
-      filter: blur(0.5px);
+      background: radial-gradient(ellipse at center, rgba(239, 35, 60, 0.32) 0%, rgba(153, 27, 27, 0.12) 48%, rgba(0, 0, 0, 0) 75%);
+      filter: blur(45px);
       pointer-events: none;
       z-index: 1;
-      transform: rotate(-12deg);
     }
   </style>
 </head>
@@ -98,7 +108,7 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    // Инициализация Telegram WebApp
+    // Telegram WebApp инициализация
     const tg = window.Telegram?.WebApp;
     if (tg) {
       try {
@@ -119,7 +129,7 @@
       }
     };
 
-    // ================= SVG ИКОНКИ (БЕЗ ЭМОДЗИ) =================
+    // ================= ЧИСТЫЕ SVG ИКОНКИ (1 В 1 СО СКРИНШОТА) =================
     const IconHome = ({ className = "w-4 h-4" }) => (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
@@ -220,15 +230,7 @@
       </svg>
     );
 
-    const IconAlertCircle = ({ className = "w-4 h-4" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-    );
-
-    // ================= ДАННЫЕ =================
+    // ================= ДАННЫЕ РАСПИСАНИЯ =================
     const WEEK_SCHEDULE = [
       {
         day: 'Понедельник',
@@ -242,8 +244,8 @@
         day: 'Вторник',
         date: '14 октября',
         lessons: [
-          { time: '10:15 – 11:45', room: 'Ауд. 210', subject: 'Алгоритмы и структуры данных', teacher: 'Григорьев С. А.', status: 'ПО ПЛАНУ', style: 'ok' },
-          { time: '12:15 – 13:45', room: 'Спортзал', subject: 'Физическая культура', teacher: 'Миронов Д. Д.', status: 'ПО ПЛАНУ', style: 'ok' }
+          { time: '10:15 – 11:45', room: 'Ауд. 210', subject: 'Алгоритмы и структуры', teacher: 'Григорьев С. А.', status: 'ПО ПЛАНУ', style: 'ok' },
+          { time: '12:15 – 13:45', room: 'Спортзал', subject: 'Физкультура', teacher: 'Миронов Д. Д.', status: 'ПО ПЛАНУ', style: 'ok' }
         ]
       },
       {
@@ -281,7 +283,7 @@
       const [isExportOpen, setIsExportOpen] = useState(false);
       const [isImportantOpen, setIsImportantOpen] = useState(false);
       const [isContactsOpen, setIsContactsOpen] = useState(false);
-      const [selectedScheduleDay, setSelectedScheduleDay] = useState(4); // Пятница по умолчанию
+      const [selectedScheduleDay, setSelectedScheduleDay] = useState(4); // Пятница
 
       const totalStudents = 28;
       const attended = counts.present + counts.late + counts.excuse; // 24 из 28
@@ -320,38 +322,66 @@
       };
 
       const getBadgeClass = (style) => {
-        if (style === 'cancel') return 'bg-[#3A141A] text-[#FB7185] border border-[#EF233C]/40';
-        if (style === 'ok') return 'bg-[#064E3B] text-[#34D399] border border-[#10B981]/40';
-        if (style === 'warn') return 'bg-[#451A03] text-[#FBBF24] border border-[#F59E0B]/40';
+        if (style === 'cancel') return 'bg-[#351219] text-[#EF233C] border border-[#EF233C]/50';
+        if (style === 'ok') return 'bg-[#093325] text-[#10B981] border border-[#10B981]/50';
+        if (style === 'warn') return 'bg-[#38200B] text-[#F59E0B] border border-[#F59E0B]/50';
         return 'bg-[#1A1D27] text-gray-300';
       };
 
       return (
         <div className="min-h-screen bg-[#0B0C10] flex justify-center relative overflow-x-hidden selection:bg-[#EF233C] selection:text-white">
-          {/* Фирменная светящаяся орбита/дуга РИТМ (в точности как на оригинале) */}
-          <div className="planet-glow-arc"></div>
+          {/* Световая дуга горизонта РИТМ */}
+          <div className="horizon-glow"></div>
+          
+          <div className="absolute top-[-70px] right-[-100px] w-[880px] h-[360px] pointer-events-none select-none z-0 opacity-80 overflow-visible">
+            <svg className="w-full h-full overflow-visible" viewBox="0 0 1200 420" fill="none">
+              <defs>
+                <radialGradient id="redDomeGradient" cx="50%" cy="15%" r="65%" fx="50%" fy="10%">
+                  <stop offset="0%" stopColor="#ef4444" stopOpacity="0.75" />
+                  <stop offset="30%" stopColor="#dc2626" stopOpacity="0.45" />
+                  <stop offset="60%" stopColor="#991b1b" stopOpacity="0.18" />
+                  <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+                </radialGradient>
+                <filter id="cleanCrestGlow" x="-20%" y="-40%" width="140%" height="200%">
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+              <path d="M-200,450 C250,90 950,90 1400,450 L1400,500 L-200,500 Z" fill="url(#redDomeGradient)" />
+              <path d="M-150,450 C250,90 950,90 1350,450" stroke="#ef4444" strokeWidth="2.5" filter="url(#cleanCrestGlow)" fill="none" opacity="0.85" />
+              <path d="M-100,450 C250,90 950,90 1300,450" stroke="#fca5a5" strokeWidth="1" fill="none" opacity="0.8" />
+            </svg>
+          </div>
 
           <div className="w-full max-w-7xl mx-auto flex min-h-screen relative z-10">
             {/* ========================================================= */}
             {/* ================= ДЕСКТОПНЫЙ ВИД (1024px+) ============== */}
             {/* ========================================================= */}
             <div className="hidden lg:flex w-full min-h-screen">
-              {/* Боковое меню (Сайдбар) */}
-              <aside className="w-60 shrink-0 flex flex-col justify-between py-7 px-5 border-r border-white/[0.07] min-h-[640px]">
+              {/* Левый Сайдбар (в точности как на скриншоте) */}
+              <aside className="w-64 shrink-0 flex flex-col justify-between py-8 px-5 border-r border-white/[0.07] min-h-[660px]">
                 <div>
-                  {/* Логотип // РИТМ */}
-                  <div className="flex items-center gap-2.5 mb-9 px-2 cursor-pointer select-none" onClick={() => handleTabSwitch('home')}>
-                    <span className="text-[#EF233C] text-2xl font-black italic tracking-tighter">//</span>
-                    <span className="font-unbounded font-black text-xl tracking-wider text-white uppercase">РИТМ</span>
+                  {/* Логотип РИТМ со скошенными красными полосками */}
+                  <div className="mb-10 px-2 cursor-pointer select-none" onClick={() => handleTabSwitch('home')}>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <div className="w-2 h-7 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
+                      <div className="w-2 h-7 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
+                    </div>
+                    <div className="font-brand text-3xl tracking-widest text-white leading-none">
+                      РИТМ
+                    </div>
                   </div>
 
-                  {/* Кнопки навигации */}
+                  {/* Навигация */}
                   <nav className="space-y-2">
                     <button
                       onClick={() => handleTabSwitch('home')}
-                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all select-none ${
+                      className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all select-none ${
                         activeTab === 'home'
-                          ? 'bg-[#321319] text-white border border-[#EF233C]/40 shadow-[0_0_16px_rgba(239,35,60,0.25)]'
+                          ? 'bg-[#301319] text-white border border-[#EF233C]/40 shadow-[0_0_20px_rgba(239,35,60,0.22)]'
                           : 'text-[#8E95A5] hover:text-white hover:bg-[#161822]'
                       }`}
                     >
@@ -361,9 +391,9 @@
 
                     <button
                       onClick={() => handleTabSwitch('schedule')}
-                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all select-none ${
+                      className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all select-none ${
                         activeTab === 'schedule'
-                          ? 'bg-[#321319] text-white border border-[#EF233C]/40 shadow-[0_0_16px_rgba(239,35,60,0.25)]'
+                          ? 'bg-[#301319] text-white border border-[#EF233C]/40 shadow-[0_0_20px_rgba(239,35,60,0.22)]'
                           : 'text-[#8E95A5] hover:text-white hover:bg-[#161822]'
                       }`}
                     >
@@ -373,9 +403,9 @@
 
                     <button
                       onClick={() => handleTabSwitch('stats')}
-                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all select-none ${
+                      className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all select-none ${
                         activeTab === 'stats'
-                          ? 'bg-[#321319] text-white border border-[#EF233C]/40 shadow-[0_0_16px_rgba(239,35,60,0.25)]'
+                          ? 'bg-[#301319] text-white border border-[#EF233C]/40 shadow-[0_0_20px_rgba(239,35,60,0.22)]'
                           : 'text-[#8E95A5] hover:text-white hover:bg-[#161822]'
                       }`}
                     >
@@ -385,9 +415,9 @@
 
                     <button
                       onClick={() => handleTabSwitch('settings')}
-                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all select-none ${
+                      className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all select-none ${
                         activeTab === 'settings'
-                          ? 'bg-[#321319] text-white border border-[#EF233C]/40 shadow-[0_0_16px_rgba(239,35,60,0.25)]'
+                          ? 'bg-[#301319] text-white border border-[#EF233C]/40 shadow-[0_0_20px_rgba(239,35,60,0.22)]'
                           : 'text-[#8E95A5] hover:text-white hover:bg-[#161822]'
                       }`}
                     >
@@ -397,21 +427,21 @@
                   </nav>
                 </div>
 
-                {/* Индикатор внизу */}
+                {/* Индикатор статуса системы */}
                 <div className="px-2 pt-6 border-t border-white/[0.06] flex items-center gap-2.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10B981]"></span>
                   <span className="text-[11px] text-[#8E95A5] font-medium leading-none">Система работает стабильно</span>
                 </div>
               </aside>
 
-              {/* Центральная часть рабочего пространства */}
-              <main className="flex-1 p-8 overflow-y-auto">
-                {/* Верхняя строка с датой и профилем */}
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-2.5">
+              {/* Основное пространство */}
+              <main className="flex-1 p-8 xl:p-10 overflow-y-auto">
+                {/* Верхняя строка: теги даты и профиль */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleTabSwitch('schedule')}
-                      className="px-4 py-1.5 rounded-full bg-[#1A1D27] hover:bg-[#222634] border border-white/10 text-xs font-medium text-gray-200 flex items-center gap-2 transition-colors"
+                      className="px-4 py-1.5 rounded-full bg-[#1A1D27] hover:bg-[#222634] border border-white/10 text-xs font-medium text-gray-200 flex items-center gap-2 transition-colors cursor-pointer"
                     >
                       <IconCalendar className="w-3.5 h-3.5 text-gray-400" />
                       <span>Пятница, 17 октября</span>
@@ -429,82 +459,79 @@
                   </div>
                 </div>
 
-                {/* Главный заголовок со слоганом */}
-                <div className="mb-7">
-                  <h1 className="text-4xl font-extrabold font-unbounded tracking-wider text-white uppercase mb-1.5 drop-shadow-md">
+                {/* Главный заголовок РИТМ */}
+                <div className="mb-8">
+                  <h1 className="text-5xl font-extrabold font-brand tracking-widest text-white uppercase mb-2 drop-shadow-lg">
                     РИТМ
                   </h1>
-                  <p className="text-sm text-[#8E95A5] font-medium">
+                  <p className="text-sm text-[#8E95A5] font-normal">
                     Отмены, расписание и перекличка работают сами
                   </p>
                 </div>
 
-                {/* ================= ВКЛАДКА: ГЛАВНАЯ ================= */}
+                {/* ================= ВКЛАДКА: ГЛАВНАЯ (1 в 1 со скриншота) ================= */}
                 {activeTab === 'home' && (
-                  <div className="grid grid-cols-12 gap-6 items-start">
-                    {/* Левая широкая колонка с 2 карточками */}
-                    <div className="col-span-8 space-y-6">
+                  <div className="grid grid-cols-12 gap-7 items-start">
+                    {/* Левая колонка (Расписание на сегодня + Перекличка) */}
+                    <div className="col-span-8 space-y-7">
                       {/* Карточка: Расписание на сегодня */}
-                      <div className="w-full bg-[#14161D] rounded-2xl border border-white/[0.08] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
-                        <div className="flex items-center justify-between mb-4">
+                      <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
+                        <div className="flex items-center justify-between mb-5">
                           <div className="flex items-center gap-2.5">
-                            <span className="relative flex h-2.5 w-2.5">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#EF233C] opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#EF233C]"></span>
-                            </span>
+                            <span className="w-2 h-2 rounded-full bg-[#EF233C] shadow-[0_0_10px_#EF233C]"></span>
                             <h2 className="text-[15px] font-semibold text-white tracking-wide">Расписание на сегодня</h2>
                           </div>
                           <button
                             onClick={() => handleTabSwitch('schedule')}
-                            className="flex items-center gap-1 text-xs text-[#8E95A5] hover:text-white transition-colors group"
+                            className="flex items-center gap-1 text-xs text-[#8E95A5] hover:text-white transition-colors group cursor-pointer"
                           >
                             <span>Все занятия</span>
                             <IconArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                           </button>
                         </div>
 
-                        <div className="space-y-3">
-                          {/* Пара 1 */}
-                          <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#1A1D27]/80 hover:bg-[#1E2230] border border-transparent hover:border-white/10 transition-all cursor-pointer">
-                            <div className="w-28 shrink-0">
-                              <div className="text-[13px] font-semibold text-white font-mono">08:30 – 10:00</div>
-                              <div className="text-[11px] text-[#8E95A5] mt-0.5">Ауд. 203</div>
+                        <div className="space-y-4">
+                          {/* 1 пара: Отмена */}
+                          <div className="flex items-center justify-between p-3.5 rounded-xl hover:bg-[#1A1D27]/60 transition-colors border-b border-white/[0.04] pb-4">
+                            <div className="w-32 shrink-0">
+                              <div className="text-[13px] font-bold text-white font-mono">08:30 – 10:00</div>
+                              <div className="text-[11px] text-[#8E95A5] mt-0.5 font-medium">Ауд. 203</div>
                             </div>
-                            <div className="flex-1 px-3 min-w-0">
-                              <div className="text-[13px] font-semibold text-gray-100 truncate">Высшая математика</div>
+                            <div className="flex-1 px-4 min-w-0">
+                              <div className="text-[13px] font-semibold text-white truncate">Высшая математика</div>
                               <div className="text-[11px] text-[#8E95A5] truncate mt-0.5">Иванов А. С.</div>
                             </div>
-                            <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#3A141A] text-[#FB7185] border border-[#EF233C]/40">
+                            <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#351219] text-[#EF233C] border border-[#EF233C]/50 shadow-sm">
                               ОТМЕНА
                             </span>
                           </div>
 
-                          {/* Пара 2 */}
-                          <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#1A1D27]/80 hover:bg-[#1E2230] border border-transparent hover:border-white/10 transition-all cursor-pointer">
-                            <div className="w-28 shrink-0">
-                              <div className="text-[13px] font-semibold text-white font-mono">10:15 – 11:45</div>
-                              <div className="text-[11px] text-[#8E95A5] mt-0.5">Ауд. 108</div>
+                          {/* 2 пара: По плану */}
+                          <div className="flex items-center justify-between p-3.5 rounded-xl hover:bg-[#1A1D27]/60 transition-colors border-b border-white/[0.04] pb-4">
+                            <div className="w-32 shrink-0">
+                              <div className="text-[13px] font-bold text-white font-mono">10:15 – 11:45</div>
+                              <div className="text-[11px] text-[#8E95A5] mt-0.5 font-medium">Ауд. 108</div>
                             </div>
-                            <div className="flex-1 px-3 min-w-0">
-                              <div className="text-[13px] font-semibold text-gray-100 truncate">Программирование</div>
+                            <div className="flex-1 px-4 min-w-0">
+                              <div className="text-[13px] font-semibold text-white truncate">Программирование</div>
                               <div className="text-[11px] text-[#8E95A5] truncate mt-0.5">Петров К. В.</div>
                             </div>
-                            <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#064E3B] text-[#34D399] border border-[#10B981]/40">
+                            <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#093325] text-[#10B981] border border-[#10B981]/50 shadow-sm">
                               ПО ПЛАНУ
                             </span>
                           </div>
 
-                          {/* Пара 3 */}
-                          <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#1A1D27]/80 hover:bg-[#1E2230] border border-transparent hover:border-white/10 transition-all cursor-pointer">
-                            <div className="w-28 shrink-0">
-                              <div className="text-[13px] font-semibold text-white font-mono">12:15 – 13:45</div>
-                              <div className="text-[11px] text-[#8E95A5] mt-0.5">Ауд. 314</div>
+                          {/* 3 пара: Дедлайн */}
+                          <div className="flex items-center justify-between p-3.5 rounded-xl hover:bg-[#1A1D27]/60 transition-colors">
+                            <div className="w-32 shrink-0">
+                              <div className="text-[13px] font-bold text-white font-mono">12:15 – 13:45</div>
+                              <div className="text-[11px] text-[#8E95A5] mt-0.5 font-medium">Ауд. 314</div>
                             </div>
-                            <div className="flex-1 px-3 min-w-0">
-                              <div className="text-[13px] font-semibold text-gray-100 truncate">Базы данных</div>
+                            <div className="flex-1 px-4 min-w-0">
+                              <div className="text-[13px] font-semibold text-white truncate">Базы данных</div>
                               <div className="text-[11px] text-[#8E95A5] truncate mt-0.5">Сидорова М. А.</div>
                             </div>
-                            <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#451A03] text-[#FBBF24] border border-[#F59E0B]/40">
+                            <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#38200B] text-[#F59E0B] border border-[#F59E0B]/50 shadow-sm">
                               ДЕДЛАЙН
                             </span>
                           </div>
@@ -512,18 +539,18 @@
                       </div>
 
                       {/* Карточка: Перекличка */}
-                      <div className="w-full bg-[#14161D] rounded-2xl border border-white/[0.08] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
-                        <div className="flex items-center gap-2 mb-4">
+                      <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
+                        <div className="flex items-center gap-2 mb-5">
                           <IconUsers className="w-4 h-4 text-gray-300" />
                           <h2 className="text-[15px] font-semibold text-white tracking-wide">Перекличка</h2>
                         </div>
 
-                        {/* 4 кнопки в один ряд на десктопе */}
-                        <div className="grid grid-cols-4 gap-2.5 mb-5">
+                        {/* 4 кнопки в один ряд 1x4 */}
+                        <div className="grid grid-cols-4 gap-3 mb-6">
                           <button
                             onClick={() => handleStatusClick('present')}
-                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-semibold text-white transition-all bg-[#059669] hover:bg-[#10B981] active:scale-98 select-none ${
-                              myStatus === 'present' ? 'ring-2 ring-white/90 shadow-[0_0_15px_rgba(16,185,129,0.5)]' : 'opacity-90'
+                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all bg-[#059669] hover:bg-[#10B981] active:scale-98 select-none ${
+                              myStatus === 'present' ? 'ring-2 ring-white/90 shadow-[0_0_16px_rgba(16,185,129,0.5)] scale-[1.02]' : 'opacity-90'
                             }`}
                           >
                             <IconCheck className="w-4 h-4" />
@@ -532,8 +559,8 @@
 
                           <button
                             onClick={() => handleStatusClick('late')}
-                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-semibold text-white transition-all bg-[#B45309] hover:bg-[#D97706] active:scale-98 select-none ${
-                              myStatus === 'late' ? 'ring-2 ring-white/90 shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'opacity-90'
+                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all bg-[#B45309] hover:bg-[#D97706] active:scale-98 select-none ${
+                              myStatus === 'late' ? 'ring-2 ring-white/90 shadow-[0_0_16px_rgba(217,119,6,0.5)] scale-[1.02]' : 'opacity-90'
                             }`}
                           >
                             <IconClock className="w-4 h-4" />
@@ -542,8 +569,8 @@
 
                           <button
                             onClick={() => handleStatusClick('excuse')}
-                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-semibold text-white transition-all bg-[#4F46E5] hover:bg-[#6366F1] active:scale-98 select-none ${
-                              myStatus === 'excuse' ? 'ring-2 ring-white/90 shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'opacity-90'
+                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all bg-[#4F46E5] hover:bg-[#6366F1] active:scale-98 select-none ${
+                              myStatus === 'excuse' ? 'ring-2 ring-white/90 shadow-[0_0_16px_rgba(99,102,241,0.5)] scale-[1.02]' : 'opacity-90'
                             }`}
                           >
                             <IconShield className="w-4 h-4" />
@@ -552,8 +579,8 @@
 
                           <button
                             onClick={() => handleStatusClick('absent')}
-                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-semibold text-white transition-all bg-[#991B1B] hover:bg-[#DC2626] active:scale-98 select-none ${
-                              myStatus === 'absent' ? 'ring-2 ring-white/90 shadow-[0_0_15px_rgba(220,38,38,0.5)]' : 'opacity-90'
+                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all bg-[#DC2626] hover:bg-[#EF4444] active:scale-98 select-none ${
+                              myStatus === 'absent' ? 'ring-2 ring-white/90 shadow-[0_0_16px_rgba(239,68,68,0.5)] scale-[1.02]' : 'opacity-90'
                             }`}
                           >
                             <IconCross className="w-4 h-4" />
@@ -561,7 +588,7 @@
                           </button>
                         </div>
 
-                        {/* Информационная строка */}
+                        {/* Информационная строка явки */}
                         <div className="space-y-3">
                           <div className="flex items-center justify-between text-xs font-medium text-gray-200">
                             <div>
@@ -569,17 +596,17 @@
                             </div>
                             <button
                               onClick={handleExport}
-                              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1A1D27] hover:bg-[#252937] text-gray-300 hover:text-white border border-white/10 text-[11px] font-mono transition-all active:scale-95"
+                              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#1A1D27] hover:bg-[#252937] text-gray-300 hover:text-white border border-white/10 text-[11px] font-mono transition-all active:scale-95 cursor-pointer shadow-sm"
                             >
                               <IconDownload className="w-3.5 h-3.5 text-gray-400" />
                               <span>/export → .xlsx</span>
                             </button>
                           </div>
 
-                          {/* Неоновый прогресс-бар */}
+                          {/* Неоновый прогресс-бар РИТМ */}
                           <div className="w-full h-1.5 bg-[#1F222E] rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-gradient-to-r from-[#EF233C] to-[#FF2A4B] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(239,35,60,0.85)]"
+                              className="h-full bg-gradient-to-r from-[#EF233C] to-[#FF2A4B] rounded-full transition-all duration-500 shadow-[0_0_14px_rgba(239,35,60,0.9)]"
                               style={{ width: `${percent}%` }}
                             ></div>
                           </div>
@@ -587,17 +614,17 @@
                       </div>
                     </div>
 
-                    {/* Правая колонка: Важно, Быстрые ссылки, Водяной знак */}
-                    <div className="col-span-4 space-y-6">
+                    {/* Правая колонка (Важно + Быстрые ссылки) */}
+                    <div className="col-span-4 space-y-7">
                       {/* Карточка: Важно */}
-                      <div className="w-full bg-[#14161D] rounded-2xl border border-white/[0.08] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
-                        <div className="flex items-center gap-2 mb-3">
+                      <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
+                        <div className="flex items-center gap-2 mb-4">
                           <IconZap className="w-4 h-4 text-[#EF233C]" />
                           <h3 className="text-sm font-semibold text-white">Важно</h3>
                         </div>
 
-                        <div className="p-3.5 rounded-xl bg-[#20151C] border border-[#EF233C]/20">
-                          <div className="flex items-start gap-2.5">
+                        <div className="p-4 rounded-xl bg-[#20151C] border border-[#EF233C]/20">
+                          <div className="flex items-start gap-3">
                             <span className="w-5 h-5 rounded-full bg-[#EF233C] text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                               !
                             </span>
@@ -608,7 +635,7 @@
                               <div className="text-[11px] text-[#8E95A5] mt-1">Сегодня, 08:00</div>
                               <button
                                 onClick={() => setIsImportantOpen(!isImportantOpen)}
-                                className="flex items-center gap-1 text-[11px] font-medium text-gray-300 hover:text-white mt-2 transition-colors"
+                                className="flex items-center gap-1 text-[11px] font-medium text-gray-300 hover:text-white mt-2.5 transition-colors cursor-pointer"
                               >
                                 <span>{isImportantOpen ? 'Скрыть' : 'Подробнее'}</span>
                                 <IconArrowRight className="w-3 h-3" />
@@ -617,7 +644,7 @@
                           </div>
 
                           {isImportantOpen && (
-                            <p className="text-[11px] text-gray-300 mt-2.5 pt-2.5 border-t border-white/10 leading-relaxed">
+                            <p className="text-[11px] text-gray-300 mt-3 pt-3 border-t border-white/10 leading-relaxed animate-in fade-in">
                               Уведомление от деканата: пара по высшей математике (08:30–10:00) отменена в связи с командировкой преподавателя Иванова А. С. Перенос будет согласован со старостой группы.
                             </p>
                           )}
@@ -625,16 +652,16 @@
                       </div>
 
                       {/* Карточка: Быстрые ссылки */}
-                      <div className="w-full bg-[#14161D] rounded-2xl border border-white/[0.08] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
-                        <div className="flex items-center gap-2 mb-3">
+                      <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
+                        <div className="flex items-center gap-2 mb-4">
                           <IconLink className="w-4 h-4 text-gray-400" />
                           <h3 className="text-sm font-semibold text-white">Быстрые ссылки</h3>
                         </div>
 
-                        <div className="space-y-1.5 text-xs">
+                        <div className="space-y-2 text-xs">
                           <button
                             onClick={() => handleTabSwitch('schedule')}
-                            className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#1A1D27] text-left text-gray-300 hover:text-white transition-colors group"
+                            className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#1A1D27] text-left text-gray-300 hover:text-white transition-colors group cursor-pointer"
                           >
                             <span>Расписание недели</span>
                             <IconArrowRight className="w-3.5 h-3.5 text-gray-500 group-hover:text-white group-hover:translate-x-0.5 transition-transform" />
@@ -642,7 +669,7 @@
 
                           <button
                             onClick={() => handleTabSwitch('stats')}
-                            className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#1A1D27] text-left text-gray-300 hover:text-white transition-colors group"
+                            className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#1A1D27] text-left text-gray-300 hover:text-white transition-colors group cursor-pointer"
                           >
                             <span>Статистика посещаемости</span>
                             <IconArrowRight className="w-3.5 h-3.5 text-gray-500 group-hover:text-white group-hover:translate-x-0.5 transition-transform" />
@@ -650,7 +677,7 @@
 
                           <button
                             onClick={() => setIsContactsOpen(true)}
-                            className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#1A1D27] text-left text-gray-300 hover:text-white transition-colors group"
+                            className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#1A1D27] text-left text-gray-300 hover:text-white transition-colors group cursor-pointer"
                           >
                             <span>Контакты деканата</span>
                             <IconArrowRight className="w-3.5 h-3.5 text-gray-500 group-hover:text-white group-hover:translate-x-0.5 transition-transform" />
@@ -658,10 +685,10 @@
                         </div>
                       </div>
 
-                      {/* Водяной знак в правом нижнем углу */}
-                      <div className="text-right pt-4 pr-1">
-                        <div className="text-xs font-bold text-gray-500 font-unbounded tracking-wider">РИТМ</div>
-                        <div className="text-[10px] text-gray-600 mt-0.5">всегда рядом</div>
+                      {/* Водяной знак РИТМ всегда рядом */}
+                      <div className="text-right pt-4 pr-1 select-none">
+                        <div className="text-xs font-bold text-gray-500 font-brand tracking-widest">РИТМ</div>
+                        <div className="text-[10px] text-gray-600 mt-0.5 font-normal">всегда рядом</div>
                       </div>
                     </div>
                   </div>
@@ -676,10 +703,10 @@
                         <button
                           key={day.day}
                           onClick={() => setSelectedScheduleDay(idx)}
-                          className={`px-4 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                          className={`px-5 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                             selectedScheduleDay === idx
                               ? 'bg-[#EF233C] text-white shadow-[0_0_16px_rgba(239,35,60,0.35)]'
-                              : 'bg-[#14161D] text-gray-400 hover:text-white border border-white/[0.08]'
+                              : 'bg-[#13151B] text-gray-400 hover:text-white border border-white/[0.08]'
                           }`}
                         >
                           <div>{day.day}</div>
@@ -688,8 +715,8 @@
                       ))}
                     </div>
 
-                    <div className="w-full bg-[#14161D] rounded-2xl border border-white/[0.08] p-6 shadow-xl space-y-4">
-                      <div className="flex items-center justify-between">
+                    <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-xl space-y-4">
+                      <div className="flex items-center justify-between border-b border-white/5 pb-3">
                         <h3 className="text-base font-bold text-white">
                           {WEEK_SCHEDULE[selectedScheduleDay].day}, {WEEK_SCHEDULE[selectedScheduleDay].date}
                         </h3>
@@ -703,7 +730,7 @@
                       <div className="space-y-3">
                         {WEEK_SCHEDULE[selectedScheduleDay].lessons.map((lesson, i) => (
                           <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-[#1A1D27] border border-white/5">
-                            <div className="w-32 shrink-0">
+                            <div className="w-36 shrink-0">
                               <div className="text-sm font-semibold text-white font-mono">{lesson.time}</div>
                               <div className="text-xs text-[#8E95A5] mt-0.5">{lesson.room}</div>
                             </div>
@@ -724,29 +751,29 @@
                 {/* ================= ВКЛАДКА: СТАТИСТИКА ================= */}
                 {activeTab === 'stats' && (
                   <div className="space-y-6">
-                    <div className="grid grid-cols-3 gap-5">
-                      <div className="p-6 rounded-2xl bg-[#14161D] border border-white/[0.08] shadow-lg">
+                    <div className="grid grid-cols-3 gap-6">
+                      <div className="p-6 rounded-[20px] bg-[#13151B] border border-white/[0.08] shadow-lg">
                         <div className="text-xs text-[#8E95A5] font-medium">Общая явка группы</div>
-                        <div className="text-4xl font-extrabold text-white mt-2 font-unbounded">89.4%</div>
+                        <div className="text-4xl font-extrabold text-white mt-2 font-brand">89.4%</div>
                         <div className="w-full h-1.5 bg-[#1F222E] rounded-full mt-4 overflow-hidden">
                           <div className="h-full bg-emerald-500 rounded-full" style={{ width: '89.4%' }}></div>
                         </div>
                       </div>
 
-                      <div className="p-6 rounded-2xl bg-[#14161D] border border-white/[0.08] shadow-lg">
+                      <div className="p-6 rounded-[20px] bg-[#13151B] border border-white/[0.08] shadow-lg">
                         <div className="text-xs text-[#8E95A5] font-medium">Без единого пропуска</div>
-                        <div className="text-4xl font-extrabold text-emerald-400 mt-2 font-unbounded">16 чел</div>
+                        <div className="text-4xl font-extrabold text-emerald-400 mt-2 font-brand">16 чел</div>
                         <div className="text-xs text-gray-500 mt-2">57% состава группы</div>
                       </div>
 
-                      <div className="p-6 rounded-2xl bg-[#14161D] border border-white/[0.08] shadow-lg">
+                      <div className="p-6 rounded-[20px] bg-[#13151B] border border-white/[0.08] shadow-lg">
                         <div className="text-xs text-[#8E95A5] font-medium">Группа риска (> 30% пропусков)</div>
-                        <div className="text-4xl font-extrabold text-amber-400 mt-2 font-unbounded">3 чел</div>
+                        <div className="text-4xl font-extrabold text-amber-400 mt-2 font-brand">3 чел</div>
                         <div className="text-xs text-gray-500 mt-2">Требуется беседа старосты</div>
                       </div>
                     </div>
 
-                    <div className="w-full bg-[#14161D] rounded-2xl border border-white/[0.08] p-6 shadow-xl space-y-4">
+                    <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-xl space-y-4">
                       <h3 className="text-sm font-bold text-white">Явка по дисциплинам</h3>
                       <div className="space-y-4">
                         <div>
@@ -786,7 +813,7 @@
                 {/* ================= ВКЛАДКА: НАСТРОЙКИ ================= */}
                 {activeTab === 'settings' && (
                   <div className="max-w-2xl space-y-5">
-                    <div className="p-5 rounded-2xl bg-[#14161D] border border-white/[0.08] flex items-center gap-4">
+                    <div className="p-6 rounded-[20px] bg-[#13151B] border border-white/[0.08] flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full bg-[#EF233C] flex items-center justify-center text-sm font-bold text-white shadow-md">
                         ИБ
                       </div>
@@ -796,10 +823,10 @@
                       </div>
                     </div>
 
-                    <div className="p-5 rounded-2xl bg-[#14161D] border border-white/[0.08] space-y-4">
+                    <div className="p-6 rounded-[20px] bg-[#13151B] border border-white/[0.08] space-y-4">
                       <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Параметры уведомлений</h3>
                       
-                      <div className="flex items-center justify-between py-2 border-b border-white/5">
+                      <div className="flex items-center justify-between py-2.5 border-b border-white/5">
                         <div>
                           <div className="text-xs font-semibold text-white">Мгновенные алерты об отменах пар</div>
                           <div className="text-[11px] text-[#8E95A5]">Присылать сразу при публикации в деканате</div>
@@ -807,7 +834,7 @@
                         <input type="checkbox" defaultChecked className="w-4 h-4 accent-[#EF233C] cursor-pointer" />
                       </div>
 
-                      <div className="flex items-center justify-between py-2 border-b border-white/5">
+                      <div className="flex items-center justify-between py-2.5 border-b border-white/5">
                         <div>
                           <div className="text-xs font-semibold text-white">Утренний дайджест в 07:30</div>
                           <div className="text-[11px] text-[#8E95A5]">Расписание на день и статус первой пары</div>
@@ -815,7 +842,7 @@
                         <input type="checkbox" defaultChecked className="w-4 h-4 accent-[#EF233C] cursor-pointer" />
                       </div>
 
-                      <div className="flex items-center justify-between py-2">
+                      <div className="flex items-center justify-between py-2.5">
                         <div>
                           <div className="text-xs font-semibold text-white">Тактильный отклик (Haptic Feedback)</div>
                           <div className="text-[11px] text-[#8E95A5]">Вибрация при нажатии кнопок в Telegram</div>
@@ -831,19 +858,23 @@
             {/* ========================================================= */}
             {/* ========= МОБИЛЬНЫЙ ВИД TELEGRAM MINI APP (<1024px) ===== */}
             {/* ========================================================= */}
-            <div className="w-full lg:hidden flex flex-col min-h-screen px-4 pb-24 pt-2 max-w-md mx-auto">
-              {/* Шапка */}
-              <header className="w-full pt-2 pb-4">
+            <div className="w-full lg:hidden flex flex-col min-h-screen px-4 pb-24 pt-3 max-w-md mx-auto">
+              {/* Шапка мобайла (1 в 1 как в рамке iPhone на скриншоте) */}
+              <header className="w-full pt-1 pb-4">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2 select-none cursor-pointer" onClick={() => handleTabSwitch('home')}>
-                    <span className="text-[#EF233C] text-2xl font-black italic tracking-tighter">//</span>
-                    <span className="font-unbounded font-black text-xl tracking-wider text-white uppercase">РИТМ</span>
+                    <div className="flex items-center gap-1">
+                      <div className="w-1.5 h-5 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
+                      <div className="w-1.5 h-5 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
+                    </div>
+                    <span className="font-brand text-xl tracking-widest text-white uppercase leading-none">РИТМ</span>
                   </div>
                   <div className="w-8 h-8 rounded-full bg-[#1A1D27] border border-white/10 flex items-center justify-center text-xs font-semibold text-gray-300">
                     ИБ
                   </div>
                 </div>
 
+                {/* Чипы даты и недели */}
                 <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-0.5">
                   <button
                     onClick={() => handleTabSwitch('schedule')}
@@ -862,54 +893,51 @@
               {activeTab === 'home' && (
                 <div className="space-y-4">
                   {/* Карточка: Расписание на сегодня */}
-                  <div className="w-full bg-[#14161D] rounded-2xl border border-white/[0.08] p-4 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
+                  <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-4 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="relative flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#EF233C] opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#EF233C]"></span>
-                      </span>
+                      <span className="w-2 h-2 rounded-full bg-[#EF233C] shadow-[0_0_8px_#EF233C]"></span>
                       <h2 className="text-[15px] font-semibold text-white tracking-wide">Расписание на сегодня</h2>
                     </div>
 
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 rounded-xl bg-[#1A1D27]/80 hover:bg-[#1E2230] cursor-pointer">
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-[#1A1D27]/70 hover:bg-[#1E2230] cursor-pointer">
                         <div className="w-24 shrink-0">
-                          <div className="text-[13px] font-semibold text-white font-mono">08:30 – 10:00</div>
-                          <div className="text-[11px] text-[#8E95A5]">Ауд. 203</div>
+                          <div className="text-[13px] font-bold text-white font-mono">08:30 – 10:00</div>
+                          <div className="text-[11px] text-[#8E95A5] mt-0.5">Ауд. 203</div>
                         </div>
                         <div className="flex-1 px-3 min-w-0">
                           <div className="text-[13px] font-semibold text-gray-100 truncate">Высшая математика</div>
-                          <div className="text-[11px] text-[#8E95A5] truncate">Иванов А. С.</div>
+                          <div className="text-[11px] text-[#8E95A5] truncate mt-0.5">Иванов А. С.</div>
                         </div>
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#3A141A] text-[#FB7185] border border-[#EF233C]/40">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#351219] text-[#EF233C] border border-[#EF233C]/50">
                           ОТМЕНА
                         </span>
                       </div>
 
-                      <div className="flex items-center justify-between p-3 rounded-xl bg-[#1A1D27]/80 hover:bg-[#1E2230] cursor-pointer">
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-[#1A1D27]/70 hover:bg-[#1E2230] cursor-pointer">
                         <div className="w-24 shrink-0">
-                          <div className="text-[13px] font-semibold text-white font-mono">10:15 – 11:45</div>
-                          <div className="text-[11px] text-[#8E95A5]">Ауд. 108</div>
+                          <div className="text-[13px] font-bold text-white font-mono">10:15 – 11:45</div>
+                          <div className="text-[11px] text-[#8E95A5] mt-0.5">Ауд. 108</div>
                         </div>
                         <div className="flex-1 px-3 min-w-0">
                           <div className="text-[13px] font-semibold text-gray-100 truncate">Программирование</div>
-                          <div className="text-[11px] text-[#8E95A5] truncate">Петров К. В.</div>
+                          <div className="text-[11px] text-[#8E95A5] truncate mt-0.5">Петров К. В.</div>
                         </div>
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#064E3B] text-[#34D399] border border-[#10B981]/40">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#093325] text-[#10B981] border border-[#10B981]/50">
                           ПО ПЛАНУ
                         </span>
                       </div>
 
-                      <div className="flex items-center justify-between p-3 rounded-xl bg-[#1A1D27]/80 hover:bg-[#1E2230] cursor-pointer">
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-[#1A1D27]/70 hover:bg-[#1E2230] cursor-pointer">
                         <div className="w-24 shrink-0">
-                          <div className="text-[13px] font-semibold text-white font-mono">12:15 – 13:45</div>
-                          <div className="text-[11px] text-[#8E95A5]">Ауд. 314</div>
+                          <div className="text-[13px] font-bold text-white font-mono">12:15 – 13:45</div>
+                          <div className="text-[11px] text-[#8E95A5] mt-0.5">Ауд. 314</div>
                         </div>
                         <div className="flex-1 px-3 min-w-0">
                           <div className="text-[13px] font-semibold text-gray-100 truncate">Базы данных</div>
-                          <div className="text-[11px] text-[#8E95A5] truncate">Сидорова М. А.</div>
+                          <div className="text-[11px] text-[#8E95A5] truncate mt-0.5">Сидорова М. А.</div>
                         </div>
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#451A03] text-[#FBBF24] border border-[#F59E0B]/40">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#38200B] text-[#F59E0B] border border-[#F59E0B]/50">
                           ДЕДЛАЙН
                         </span>
                       </div>
@@ -917,7 +945,7 @@
                   </div>
 
                   {/* Карточка: Перекличка */}
-                  <div className="w-full bg-[#14161D] rounded-2xl border border-white/[0.08] p-4 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
+                  <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-4 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
                     <div className="flex items-center gap-2 mb-4">
                       <IconUsers className="w-4 h-4 text-gray-300" />
                       <h2 className="text-[15px] font-semibold text-white tracking-wide">Перекличка</h2>
@@ -957,7 +985,7 @@
 
                       <button
                         onClick={() => handleStatusClick('absent')}
-                        className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-semibold text-white bg-[#991B1B] active:scale-95 transition-all select-none ${
+                        className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-semibold text-white bg-[#DC2626] active:scale-95 transition-all select-none ${
                           myStatus === 'absent' ? 'ring-2 ring-white/90 shadow-md' : 'opacity-90'
                         }`}
                       >
@@ -992,22 +1020,22 @@
 
               {activeTab === 'schedule' && (
                 <div className="space-y-4 pt-1">
-                  <div className="text-sm font-bold font-unbounded text-white">Расписание недели</div>
+                  <div className="text-sm font-bold font-brand tracking-wider text-white">Расписание недели</div>
                   <div className="space-y-3">
                     {WEEK_SCHEDULE.map((day) => (
-                      <div key={day.day} className="p-4 rounded-xl bg-[#14161D] border border-white/10 space-y-2.5">
+                      <div key={day.day} className="p-4 rounded-2xl bg-[#13151B] border border-white/10 space-y-2.5">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-white">{day.day}, {day.date}</span>
                           {day.isToday && <span className="text-[10px] text-[#EF233C] font-bold">СЕГОДНЯ</span>}
                         </div>
                         <div className="space-y-2">
                           {day.lessons.map((l, i) => (
-                            <div key={i} className="flex justify-between items-center text-xs p-2 rounded-lg bg-[#1A1D27]">
+                            <div key={i} className="flex justify-between items-center text-xs p-2.5 rounded-xl bg-[#1A1D27]">
                               <div>
                                 <div className="font-semibold text-gray-100">{l.subject}</div>
-                                <div className="text-[11px] text-[#8E95A5]">{l.time} • {l.room}</div>
+                                <div className="text-[11px] text-[#8E95A5] mt-0.5">{l.time} • {l.room}</div>
                               </div>
-                              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${getBadgeClass(l.style)}`}>
+                              <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase ${getBadgeClass(l.style)}`}>
                                 {l.status}
                               </span>
                             </div>
@@ -1021,21 +1049,21 @@
 
               {activeTab === 'stats' && (
                 <div className="space-y-4 pt-1">
-                  <div className="text-sm font-bold font-unbounded text-white">Статистика группы ИВТ-21</div>
-                  <div className="p-5 rounded-2xl bg-[#14161D] border border-white/10">
+                  <div className="text-sm font-bold font-brand tracking-wider text-white">Статистика группы ИВТ-21</div>
+                  <div className="p-5 rounded-2xl bg-[#13151B] border border-white/10">
                     <div className="text-xs text-[#8E95A5]">Общая явка группы</div>
-                    <div className="text-3xl font-extrabold text-white mt-1 font-unbounded">89.4%</div>
+                    <div className="text-3xl font-extrabold text-white mt-1 font-brand">89.4%</div>
                     <div className="w-full h-1.5 bg-[#1F222E] rounded-full mt-3 overflow-hidden">
                       <div className="h-full bg-emerald-500 rounded-full" style={{ width: '89.4%' }}></div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="p-4 rounded-xl bg-[#14161D] border border-white/10">
+                    <div className="p-4 rounded-xl bg-[#13151B] border border-white/10">
                       <div className="text-xs text-[#8E95A5]">Без пропусков</div>
                       <div className="text-xl font-bold text-emerald-400 mt-1">16 чел</div>
                     </div>
-                    <div className="p-4 rounded-xl bg-[#14161D] border border-white/10">
+                    <div className="p-4 rounded-xl bg-[#13151B] border border-white/10">
                       <div className="text-xs text-[#8E95A5]">В зоне риска</div>
                       <div className="text-xl font-bold text-amber-400 mt-1">3 чел</div>
                     </div>
@@ -1045,8 +1073,8 @@
 
               {activeTab === 'settings' && (
                 <div className="space-y-4 pt-1">
-                  <div className="text-sm font-bold font-unbounded text-white">Настройки</div>
-                  <div className="p-4 rounded-xl bg-[#14161D] border border-white/10 text-xs space-y-2">
+                  <div className="text-sm font-bold font-brand tracking-wider text-white">Настройки</div>
+                  <div className="p-4 rounded-2xl bg-[#13151B] border border-white/10 text-xs space-y-2">
                     <div className="text-gray-200"><b>Пользователь:</b> Иван Борисов (Староста)</div>
                     <div className="text-gray-200"><b>Группа:</b> ИВТ-21</div>
                     <div className="text-[#8E95A5] text-[11px] pt-2 border-t border-white/5">
@@ -1056,7 +1084,7 @@
                 </div>
               )}
 
-              {/* Нижний таб-бар на мобильном устройстве */}
+              {/* Нижний таб-бар на мобильном */}
               <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#0B0C10]/95 backdrop-blur-md border-t border-white/[0.08] px-4 pt-2 pb-safe">
                 <div className="max-w-md mx-auto flex items-center justify-around pb-2">
                   <button
@@ -1133,13 +1161,13 @@
                       navigator.clipboard.writeText(`Отчет явки (ИВТ-21, 17 октября): ${attended} из ${totalStudents} присутствуют.`);
                       alert('Отчет скопирован в буфер обмена!');
                     }}
-                    className="flex-1 py-2.5 rounded-xl bg-[#1A1D27] hover:bg-[#252937] text-white text-xs font-semibold border border-white/10 transition-all"
+                    className="flex-1 py-2.5 rounded-xl bg-[#1A1D27] hover:bg-[#222634] text-white text-xs font-semibold border border-white/10 transition-all cursor-pointer"
                   >
                     Копировать текст
                   </button>
                   <button
                     onClick={downloadCsv}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#059669] hover:bg-[#10B981] text-white text-xs font-semibold transition-all shadow-md"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#059669] hover:bg-[#10B981] text-white text-xs font-semibold transition-all shadow-md cursor-pointer"
                   >
                     <IconDownload className="w-3.5 h-3.5" />
                     <span>Скачать .xlsx</span>
