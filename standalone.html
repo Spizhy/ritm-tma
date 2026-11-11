@@ -41,7 +41,7 @@
     }
   </script>
 
-  <!-- React 18 & Babel for instant preview without npm -->
+  <!-- React 18 & Babel for instant preview without node / build dependencies -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -68,17 +68,8 @@
       user-select: none;
       -webkit-tap-highlight-color: transparent;
       overflow-x: hidden;
-      margin: 0;
-      padding: 0;
     }
 
-    .font-brand {
-      font-family: 'NauryzRedKeds', 'Unbounded', sans-serif;
-    }
-
-    .pb-safe {
-      padding-bottom: max(env(safe-area-inset-bottom, 16px), 16px);
-    }
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -87,18 +78,20 @@
       scrollbar-width: none;
     }
 
-    /* Архитектурное свечение дуги горизонта РИТМ из сайта */
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 16px);
+    }
+
     .horizon-glow {
       position: absolute;
-      top: -120px;
-      right: -100px;
-      width: 850px;
+      top: -140px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1000px;
       height: 380px;
-      border-radius: 50%;
-      background: radial-gradient(ellipse at center, rgba(239, 35, 60, 0.32) 0%, rgba(153, 27, 27, 0.12) 48%, rgba(0, 0, 0, 0) 75%);
-      filter: blur(45px);
+      background: radial-gradient(ellipse at 50% 15%, rgba(239, 35, 60, 0.42) 0%, rgba(220, 38, 38, 0.16) 42%, rgba(0, 0, 0, 0) 75%);
       pointer-events: none;
-      z-index: 1;
+      z-index: 0;
     }
   </style>
 </head>
@@ -129,7 +122,7 @@
       }
     };
 
-    // ================= ЧИСТЫЕ SVG ИКОНКИ (1 В 1 СО СКРИНШОТА) =================
+    // ================= ЧИСТЫЕ SVG ВЕКТОРНЫЕ ИКОНКИ (ZERO EMOJIS) =================
     const IconHome = ({ className = "w-4 h-4" }) => (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
@@ -161,15 +154,6 @@
       </svg>
     );
 
-    const IconUsers = ({ className = "w-4 h-4" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-    );
-
     const IconCheck = ({ className = "w-4 h-4" }) => (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="20 6 9 17 4 12"/>
@@ -189,14 +173,14 @@
       </svg>
     );
 
-    const IconCross = ({ className = "w-4 h-4" }) => (
+    const IconX = ({ className = "w-4 h-4" }) => (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <line x1="18" y1="6" x2="6" y2="18"/>
         <line x1="6" y1="6" x2="18" y2="18"/>
       </svg>
     );
 
-    const IconDownload = ({ className = "w-3.5 h-3.5" }) => (
+    const IconDownload = ({ className = "w-4 h-4" }) => (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
         <polyline points="7 10 12 15 17 10"/>
@@ -205,7 +189,7 @@
     );
 
     const IconZap = ({ className = "w-4 h-4" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
       </svg>
     );
@@ -217,12 +201,6 @@
       </svg>
     );
 
-    const IconChevronDown = ({ className = "w-3.5 h-3.5" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="6 9 12 15 18 9"/>
-      </svg>
-    );
-
     const IconArrowRight = ({ className = "w-3.5 h-3.5" }) => (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="5" y1="12" x2="19" y2="12"/>
@@ -230,89 +208,346 @@
       </svg>
     );
 
-    // ================= ДАННЫЕ РАСПИСАНИЯ =================
-    const WEEK_SCHEDULE = [
+    const IconChevronDown = ({ className = "w-3.5 h-3.5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    );
+
+    const IconUsers = ({ className = "w-4 h-4" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    );
+
+    const IconMapPin = ({ className = "w-3.5 h-3.5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+    );
+
+    const IconUser = ({ className = "w-3.5 h-3.5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+    );
+
+    const IconEdit = ({ className = "w-3.5 h-3.5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      </svg>
+    );
+
+    const IconUpload = ({ className = "w-3.5 h-3.5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    );
+
+    const IconTable = ({ className = "w-3.5 h-3.5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+        <line x1="3" y1="9" x2="21" y2="9"/>
+        <line x1="3" y1="15" x2="21" y2="15"/>
+        <line x1="12" y1="3" x2="12" y2="21"/>
+      </svg>
+    );
+
+    const IconExternal = ({ className = "w-3 h-3" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        <polyline points="15 3 21 3 21 9"/>
+        <line x1="10" y1="14" x2="21" y2="3"/>
+      </svg>
+    );
+
+    const IconCopy = ({ className = "w-3.5 h-3.5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+      </svg>
+    );
+
+    // ================= ДАННЫЕ ПО УМОЛЧАНИЮ =================
+    const INITIAL_TODAY_LESSONS = [
       {
-        day: 'Понедельник',
-        date: '13 октября',
+        id: 'lesson-1',
+        timeStart: '08:30',
+        timeEnd: '10:00',
+        room: 'Ауд. 203',
+        subject: 'Высшая математика',
+        teacher: 'Иванов А. С.',
+        status: 'CANCELLED',
+        statusLabel: 'ОТМЕНА',
+        note: 'Преподаватель на научной конференции. Занятие будет перенесено.',
+        weekday: 'Пятница'
+      },
+      {
+        id: 'lesson-2',
+        timeStart: '10:15',
+        timeEnd: '11:45',
+        room: 'Ауд. 108',
+        subject: 'Программирование',
+        teacher: 'Петров К. В.',
+        status: 'PLANNED',
+        statusLabel: 'ПО ПЛАНУ',
+        note: 'Лабораторная работа №4. Принести ноутбуки.',
+        weekday: 'Пятница'
+      },
+      {
+        id: 'lesson-3',
+        timeStart: '12:15',
+        timeEnd: '13:45',
+        room: 'Ауд. 314',
+        subject: 'Базы данных',
+        teacher: 'Сидорова М. А.',
+        status: 'DEADLINE',
+        statusLabel: 'ДЕДЛАЙН',
+        note: 'Сдача курсового проекта до 23:59!',
+        weekday: 'Пятница'
+      }
+    ];
+
+    const INITIAL_STUDENTS = [
+      { id: '1', name: 'Борисов Иван (Староста)', username: 'spizhy', status: 'present' },
+      { id: '2', name: 'Алексеева Дарья', username: 'daria_alex', status: 'present' },
+      { id: '3', name: 'Васильев Максим', username: 'm_vasiliev', status: 'present' },
+      { id: '4', name: 'Громова Екатерина', username: 'katya_grom', status: 'present' },
+      { id: '5', name: 'Дмитриев Артем', username: 'artem_dmitr', status: 'late' },
+      { id: '6', name: 'Егоров Кирилл', username: 'kirill_eg', status: 'present' },
+      { id: '7', name: 'Жукова Полина', username: 'polina_zhuk', status: 'excuse' },
+      { id: '8', name: 'Зайцев Роман', username: 'roma_zaycev', status: 'absent' },
+      { id: '9', name: 'Иванова София', username: 'sofia_iva', status: 'present' },
+      { id: '10', name: 'Козлов Андрей', username: 'andrey_kozlov', status: 'present' },
+      { id: '11', name: 'Кузнецова Анна', username: 'anya_kuzn', status: 'present' },
+      { id: '12', name: 'Лебедев Денис', username: 'den_lebedev', status: 'late' },
+      { id: '13', name: 'Морозов Сергей', username: 'serg_moroz', status: 'present' },
+      { id: '14', name: 'Новикова Алина', username: 'alina_novik', status: 'excuse' },
+      { id: '15', name: 'Павлов Никита', username: 'nik_pavlov', status: 'present' },
+      { id: '16', name: 'Романов Арсений', username: 'arsen_romanov', status: 'present' },
+      { id: '17', name: 'Смирнова Вероника', username: 'nika_smirnova', status: 'present' },
+      { id: '18', name: 'Тарасов Владислав', username: 'vlad_tarasov', status: 'absent' },
+      { id: '19', name: 'Ушаков Илья', username: 'ilya_ushakov', status: 'present' },
+      { id: '20', name: 'Федоров Егор', username: 'egor_fed', status: 'present' },
+      { id: '21', name: 'Харитонова Мария', username: 'masha_khar', status: 'present' },
+      { id: '22', name: 'Цветков Матвей', username: 'matvey_tsvet', status: 'present' },
+      { id: '23', name: 'Чернов Тимофей', username: 'tim_chernov', status: 'present' },
+      { id: '24', name: 'Шестакова Виктория', username: 'vika_shest', status: 'present' },
+      { id: '25', name: 'Щербаков Павел', username: 'pavel_shcherb', status: 'absent' },
+      { id: '26', name: 'Юдина Ксения', username: 'ksenia_yud', status: 'present' },
+      { id: '27', name: 'Яковлев Даниил', username: 'dan_yakovlev', status: 'present' },
+      { id: '28', name: 'Семенов Богдан', username: 'bogdan_sem', status: 'absent' },
+    ];
+
+    const INITIAL_WEEK_SCHEDULE = [
+      {
+        dayOfWeek: 'Понедельник',
+        dateStr: '13 октября',
+        isToday: false,
         lessons: [
-          { time: '09:00 – 10:30', room: 'Ауд. 402', subject: 'Физика', teacher: 'Соколов В. П.', status: 'ПО ПЛАНУ', style: 'ok' },
-          { time: '10:45 – 12:15', room: 'Ауд. 101', subject: 'История науки', teacher: 'Белова О. Н.', status: 'ПО ПЛАНУ', style: 'ok' }
+          { id: 'mon-1', timeStart: '09:00', timeEnd: '10:30', room: 'Ауд. 402', subject: 'Физика', teacher: 'Соколов В. П.', status: 'PLANNED', statusLabel: 'ПО ПЛАНУ' },
+          { id: 'mon-2', timeStart: '10:45', timeEnd: '12:15', room: 'Ауд. 101', subject: 'История науки', teacher: 'Белова О. Н.', status: 'PLANNED', statusLabel: 'ПО ПЛАНУ' },
         ]
       },
       {
-        day: 'Вторник',
-        date: '14 октября',
+        dayOfWeek: 'Вторник',
+        dateStr: '14 октября',
+        isToday: false,
         lessons: [
-          { time: '10:15 – 11:45', room: 'Ауд. 210', subject: 'Алгоритмы и структуры', teacher: 'Григорьев С. А.', status: 'ПО ПЛАНУ', style: 'ok' },
-          { time: '12:15 – 13:45', room: 'Спортзал', subject: 'Физкультура', teacher: 'Миронов Д. Д.', status: 'ПО ПЛАНУ', style: 'ok' }
+          { id: 'tue-1', timeStart: '10:15', timeEnd: '11:45', room: 'Ауд. 210', subject: 'Алгоритмы и структуры', teacher: 'Григорьев С. А.', status: 'PLANNED', statusLabel: 'ПО ПЛАНУ' },
+          { id: 'tue-2', timeStart: '12:15', timeEnd: '13:45', room: 'Спортзал', subject: 'Физкультура', teacher: 'Миронов Д. Д.', status: 'PLANNED', statusLabel: 'ПО ПЛАНУ' },
         ]
       },
       {
-        day: 'Среда',
-        date: '15 октября',
+        dayOfWeek: 'Среда',
+        dateStr: '15 октября',
+        isToday: false,
         lessons: [
-          { time: '08:30 – 10:00', room: 'Ауд. 305', subject: 'Компьютерные сети', teacher: 'Николаев А. Е.', status: 'ПО ПЛАНУ', style: 'ok' },
-          { time: '10:15 – 11:45', room: 'Ауд. 305', subject: 'Компьютерные сети (лаб)', teacher: 'Николаев А. Е.', status: 'ДЕДЛАЙН', style: 'warn' }
+          { id: 'wed-1', timeStart: '08:30', timeEnd: '10:00', room: 'Ауд. 305', subject: 'Компьютерные сети', teacher: 'Николаев А. Е.', status: 'PLANNED', statusLabel: 'ПО ПЛАНУ' },
+          { id: 'wed-2', timeStart: '10:15', timeEnd: '11:45', room: 'Ауд. 305', subject: 'Компьютерные сети (лаб)', teacher: 'Николаев А. Е.', status: 'DEADLINE', statusLabel: 'ДЕДЛАЙН' },
         ]
       },
       {
-        day: 'Четверг',
-        date: '16 октября',
+        dayOfWeek: 'Четверг',
+        dateStr: '16 октября',
+        isToday: false,
         lessons: [
-          { time: '10:15 – 11:45', room: 'Ауд. 108', subject: 'Архитектура ЭВМ', teacher: 'Ковалев П. С.', status: 'ПО ПЛАНУ', style: 'ok' },
-          { time: '12:15 – 13:45', room: 'Ауд. 108', subject: 'Операционные системы', teacher: 'Ковалев П. С.', status: 'ПО ПЛАНУ', style: 'ok' }
+          { id: 'thu-1', timeStart: '10:15', timeEnd: '11:45', room: 'Ауд. 108', subject: 'Архитектура ЭВМ', teacher: 'Ковалев П. С.', status: 'PLANNED', statusLabel: 'ПО ПЛАНУ' },
+          { id: 'thu-2', timeStart: '12:15', timeEnd: '13:45', room: 'Ауд. 108', subject: 'Операционные системы', teacher: 'Ковалев П. С.', status: 'PLANNED', statusLabel: 'ПО ПЛАНУ' },
         ]
       },
       {
-        day: 'Пятница',
-        date: '17 октября',
+        dayOfWeek: 'Пятница',
+        dateStr: '17 октября',
         isToday: true,
+        lessons: INITIAL_TODAY_LESSONS
+      },
+      {
+        dayOfWeek: 'Суббота',
+        dateStr: '18 октября',
+        isToday: false,
         lessons: [
-          { time: '08:30 – 10:00', room: 'Ауд. 203', subject: 'Высшая математика', teacher: 'Иванов А. С.', status: 'ОТМЕНА', style: 'cancel' },
-          { time: '10:15 – 11:45', room: 'Ауд. 108', subject: 'Программирование', teacher: 'Петров К. В.', status: 'ПО ПЛАНУ', style: 'ok' },
-          { time: '12:15 – 13:45', room: 'Ауд. 314', subject: 'Базы данных', teacher: 'Сидорова М. А.', status: 'ДЕДЛАЙН', style: 'warn' }
+          { id: 'sat-1', timeStart: '09:00', timeEnd: '10:30', room: 'Онлайн', subject: 'Английский язык', teacher: 'Власова Е. М.', status: 'PLANNED', statusLabel: 'ПО ПЛАНУ' },
         ]
       }
     ];
 
+    // ================= ГЛАВНЫЙ КОМПОНЕНТ APP =================
     function App() {
       const [activeTab, setActiveTab] = useState('home');
+      const [schedule, setSchedule] = useState(() => {
+        try {
+          const s = localStorage.getItem('ritm_schedule');
+          return s ? JSON.parse(s) : INITIAL_WEEK_SCHEDULE;
+        } catch { return INITIAL_WEEK_SCHEDULE; }
+      });
+
+      const [todayLessons, setTodayLessons] = useState(() => {
+        try {
+          const s = localStorage.getItem('ritm_today_lessons');
+          return s ? JSON.parse(s) : INITIAL_TODAY_LESSONS;
+        } catch { return INITIAL_TODAY_LESSONS; }
+      });
+
+      const [students, setStudents] = useState(() => {
+        try {
+          const s = localStorage.getItem('ritm_students');
+          return s ? JSON.parse(s) : INITIAL_STUDENTS;
+        } catch { return INITIAL_STUDENTS; }
+      });
+
+      const [cancellationAlert, setCancellationAlert] = useState({
+        subject: 'Высшая математика',
+        dateStr: 'Сегодня, 08:00',
+        reason: 'Занятие по высшей математике отменено в связи с участием Иванова А. С. в конференции. Перенос согласовывается.',
+        status: 'CANCELLED',
+        statusLabel: 'ОТМЕНА'
+      });
+
       const [myStatus, setMyStatus] = useState('present');
-      const [counts, setCounts] = useState({ present: 20, late: 2, excuse: 2, absent: 4 });
+      const [selectedScheduleDay, setSelectedScheduleDay] = useState(4); // Пятница
+      const [scheduleViewMode, setScheduleViewMode] = useState('cards'); // cards or table
       const [isExportOpen, setIsExportOpen] = useState(false);
       const [isImportantOpen, setIsImportantOpen] = useState(false);
       const [isContactsOpen, setIsContactsOpen] = useState(false);
-      const [selectedScheduleDay, setSelectedScheduleDay] = useState(4); // Пятница
+      const [isRosterOpen, setIsRosterOpen] = useState(false);
+      const [isImportOpen, setIsImportOpen] = useState(false);
+      const [editingLesson, setEditingLesson] = useState(null);
 
-      const totalStudents = 28;
-      const attended = counts.present + counts.late + counts.excuse; // 24 из 28
+      // Сохранение в localStorage
+      useEffect(() => {
+        try {
+          localStorage.setItem('ritm_schedule', JSON.stringify(schedule));
+          localStorage.setItem('ritm_today_lessons', JSON.stringify(todayLessons));
+          localStorage.setItem('ritm_students', JSON.stringify(students));
+        } catch(e) {}
+      }, [schedule, todayLessons, students]);
+
+      // Подсчет явки
+      const counts = {
+        present: students.filter(s => s.status === 'present').length,
+        late: students.filter(s => s.status === 'late').length,
+        excuse: students.filter(s => s.status === 'excuse').length,
+        absent: students.filter(s => s.status === 'absent').length,
+      };
+      const totalStudents = students.length;
+      const attended = counts.present + counts.late + counts.excuse;
       const percent = Math.round((attended / totalStudents) * 100);
 
       const handleTabSwitch = (tab) => {
         triggerHaptic('selection');
         setActiveTab(tab);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       };
 
       const handleStatusClick = (status) => {
         triggerHaptic('medium');
-        if (myStatus === status) return;
-        setCounts(prev => {
-          const next = { ...prev };
-          if (myStatus && next[myStatus] > 0) next[myStatus]--;
-          next[status]++;
-          return next;
-        });
         setMyStatus(status);
+        // Обновляем первого студента (Иван Борисов)
+        setStudents(prev => prev.map((s, idx) => idx === 0 ? { ...s, status } : s));
       };
 
-      const handleExport = () => {
+      const getBadgeClass = (status) => {
+        if (status === 'CANCELLED' || status === 'cancel') return 'bg-[#351219] text-[#EF233C] border border-[#EF233C]/50';
+        if (status === 'PLANNED' || status === 'ok') return 'bg-[#093325] text-[#10B981] border border-[#10B981]/50';
+        if (status === 'DEADLINE' || status === 'warn') return 'bg-[#38200B] text-[#F59E0B] border border-[#F59E0B]/50';
+        if (status === 'RESCHEDULED') return 'bg-[#2E1065] text-[#A78BFA] border border-[#8B5CF6]/50';
+        if (status === 'ONLINE') return 'bg-[#082F49] text-[#38BDF8] border border-[#0284C7]/50';
+        return 'bg-[#1A1D27] text-gray-300';
+      };
+
+      // Сохранение изменений в паре старостой
+      const handleSaveLesson = (updatedLesson, notifyGroup) => {
+        triggerHaptic('medium');
+        setTodayLessons(prev => prev.map(l => l.id === updatedLesson.id ? updatedLesson : l));
+        setSchedule(prev => prev.map(day => ({
+          ...day,
+          lessons: day.lessons.map(l => l.id === updatedLesson.id ? updatedLesson : l)
+        })));
+
+        if (updatedLesson.status === 'CANCELLED' || updatedLesson.status === 'RESCHEDULED') {
+          setCancellationAlert({
+            subject: updatedLesson.subject,
+            dateStr: 'Сегодня, ' + new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+            reason: updatedLesson.note || 'Занятие изменено старостой.',
+            status: updatedLesson.status,
+            statusLabel: updatedLesson.statusLabel
+          });
+        }
+
+        if (notifyGroup) {
+          fetch('/api/cancellations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              group_name: 'ИВТ-21',
+              subject: updatedLesson.subject,
+              time: `${updatedLesson.timeStart} – ${updatedLesson.timeEnd}`,
+              status: updatedLesson.status,
+              statusLabel: updatedLesson.statusLabel,
+              room: updatedLesson.room,
+              reason: updatedLesson.note,
+              starosta: 'Иван Борисов'
+            })
+          }).catch(() => {});
+        }
+
+        alert(`Занятие "${updatedLesson.subject}" обновлено!`);
+        setEditingLesson(null);
+      };
+
+      // Импорт расписания
+      const handleApplyImport = (newSchedule) => {
         triggerHaptic('success');
-        setIsExportOpen(true);
+        setSchedule(newSchedule);
+        const fri = newSchedule.find(d => d.dayOfWeek === 'Пятница') || newSchedule[0];
+        if (fri && fri.lessons.length > 0) setTodayLessons(fri.lessons);
+        setIsImportOpen(false);
+        alert('Расписание успешно импортировано в РИТМ!');
+      };
+
+      // Обновление статуса студента
+      const handleStudentStatusChange = (id, newStatus) => {
+        triggerHaptic('light');
+        setStudents(prev => prev.map(s => s.id === id ? { ...s, status: newStatus } : s));
       };
 
       const downloadCsv = () => {
-        const text = "\uFEFF№;ФИО;Статус;Группа\n1;Борисов Иван;На парах;ИВТ-21\n2;Алексеева Дарья;На парах;ИВТ-21\n3;Васильев Максим;На парах;ИВТ-21\n4;Дмитриев Артем;Опаздывает;ИВТ-21\n5;Жукова Полина;Уважительная;ИВТ-21\n6;Зайцев Роман;Отсутствует;ИВТ-21\n";
+        let text = "﻿№;ФИО;Telegram;Статус;Группа
+";
+        students.forEach((s, idx) => {
+          const stMap = { present: 'На парах', late: 'Опаздывает', excuse: 'Уважительная', absent: 'Отсутствует' };
+          text += `${idx + 1};${s.name};@${s.username || ''};${stMap[s.status] || ''};ИВТ-21
+`;
+        });
         const blob = new Blob([text], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -321,11 +556,32 @@
         a.click();
       };
 
-      const getBadgeClass = (style) => {
-        if (style === 'cancel') return 'bg-[#351219] text-[#EF233C] border border-[#EF233C]/50';
-        if (style === 'ok') return 'bg-[#093325] text-[#10B981] border border-[#10B981]/50';
-        if (style === 'warn') return 'bg-[#38200B] text-[#F59E0B] border border-[#F59E0B]/50';
-        return 'bg-[#1A1D27] text-gray-300';
+      const copyReportToClipboard = () => {
+        const pres = students.filter(s => s.status === 'present');
+        const late = students.filter(s => s.status === 'late');
+        const exc = students.filter(s => s.status === 'excuse');
+        const abs = students.filter(s => s.status === 'absent');
+        const fmt = list => list.map((s, i) => `${i + 1}. ${s.name}${s.username ? ` (@${s.username})` : ''}`).join('
+');
+
+        const report = `📋 Перекличка группы ИВТ-21 (17 октября)
+Явка: ${attended} из ${totalStudents} (${percent}%)
+
+✅ На парах (${pres.length}):
+${fmt(pres) || '—'}
+
+⏳ Опаздывают (${late.length}):
+${fmt(late) || '—'}
+
+📄 Уважительная причина (${exc.length}):
+${fmt(exc) || '—'}
+
+❌ Отсутствуют (${abs.length}):
+${fmt(abs) || '—'}
+
+Сформировано в РИТМ`;
+        navigator.clipboard.writeText(report);
+        alert('Сводка переклички скопирована в буфер обмена!');
       };
 
       return (
@@ -357,29 +613,30 @@
           </div>
 
           <div className="w-full max-w-7xl mx-auto flex min-h-screen relative z-10">
-            {/* ========================================================= */}
-            {/* ================= ДЕСКТОПНЫЙ ВИД (1024px+) ============== */}
-            {/* ========================================================= */}
+            {/* ================= ДЕСКТОПНЫЙ ВИД (1024px+) ================= */}
             <div className="hidden lg:flex w-full min-h-screen">
-              {/* Левый Сайдбар (в точности как на скриншоте) */}
-              <aside className="w-64 shrink-0 flex flex-col justify-between py-8 px-5 border-r border-white/[0.07] min-h-[660px]">
+              {/* Левый Сайдбар */}
+              <aside className="w-64 shrink-0 flex flex-col justify-between py-8 px-6 border-r border-white/[0.07] min-h-[660px]">
                 <div>
-                  {/* Логотип РИТМ со скошенными красными полосками */}
-                  <div className="mb-10 px-2 cursor-pointer select-none" onClick={() => handleTabSwitch('home')}>
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <div className="w-2 h-7 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
-                      <div className="w-2 h-7 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
+                  {/* Фирменный логотип // РИТМ (1 в 1 в одну строку со скриншота) */}
+                  <div
+                    className="flex items-center gap-2.5 mb-10 px-1 cursor-pointer select-none"
+                    onClick={() => handleTabSwitch('home')}
+                  >
+                    <div className="flex items-center gap-1 shrink-0">
+                      <div className="w-1.5 h-6 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
+                      <div className="w-1.5 h-6 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
                     </div>
-                    <div className="font-brand text-3xl tracking-widest text-white leading-none">
+                    <span className="font-brand text-2xl tracking-widest text-white leading-none">
                       РИТМ
-                    </div>
+                    </span>
                   </div>
 
                   {/* Навигация */}
                   <nav className="space-y-2">
                     <button
                       onClick={() => handleTabSwitch('home')}
-                      className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all select-none ${
+                      className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all select-none cursor-pointer ${
                         activeTab === 'home'
                           ? 'bg-[#301319] text-white border border-[#EF233C]/40 shadow-[0_0_20px_rgba(239,35,60,0.22)]'
                           : 'text-[#8E95A5] hover:text-white hover:bg-[#161822]'
@@ -391,7 +648,7 @@
 
                     <button
                       onClick={() => handleTabSwitch('schedule')}
-                      className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all select-none ${
+                      className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all select-none cursor-pointer ${
                         activeTab === 'schedule'
                           ? 'bg-[#301319] text-white border border-[#EF233C]/40 shadow-[0_0_20px_rgba(239,35,60,0.22)]'
                           : 'text-[#8E95A5] hover:text-white hover:bg-[#161822]'
@@ -403,7 +660,7 @@
 
                     <button
                       onClick={() => handleTabSwitch('stats')}
-                      className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all select-none ${
+                      className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all select-none cursor-pointer ${
                         activeTab === 'stats'
                           ? 'bg-[#301319] text-white border border-[#EF233C]/40 shadow-[0_0_20px_rgba(239,35,60,0.22)]'
                           : 'text-[#8E95A5] hover:text-white hover:bg-[#161822]'
@@ -415,7 +672,7 @@
 
                     <button
                       onClick={() => handleTabSwitch('settings')}
-                      className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all select-none ${
+                      className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all select-none cursor-pointer ${
                         activeTab === 'settings'
                           ? 'bg-[#301319] text-white border border-[#EF233C]/40 shadow-[0_0_20px_rgba(239,35,60,0.22)]'
                           : 'text-[#8E95A5] hover:text-white hover:bg-[#161822]'
@@ -427,16 +684,18 @@
                   </nav>
                 </div>
 
-                {/* Индикатор статуса системы */}
+                {/* Индикатор стабильности системы */}
                 <div className="px-2 pt-6 border-t border-white/[0.06] flex items-center gap-2.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10B981]"></span>
-                  <span className="text-[11px] text-[#8E95A5] font-medium leading-none">Система работает стабильно</span>
+                  <span className="text-[11px] text-[#8E95A5] font-medium leading-none">
+                    Система работает стабильно
+                  </span>
                 </div>
               </aside>
 
-              {/* Основное пространство */}
+              {/* Центральный контент */}
               <main className="flex-1 p-8 xl:p-10 overflow-y-auto">
-                {/* Верхняя строка: теги даты и профиль */}
+                {/* Верхняя строка с датой и профилем */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <button
@@ -451,7 +710,11 @@
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1A1D27] border border-white/10 cursor-pointer hover:border-white/20 transition-colors">
+                  <div
+                    onClick={() => setIsRosterOpen(true)}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1A1D27] border border-white/10 cursor-pointer hover:border-white/20 transition-colors"
+                    title="Открыть базу группы"
+                  >
                     <div className="w-6 h-6 rounded-full bg-[#EF233C] flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
                       ИБ
                     </div>
@@ -459,7 +722,7 @@
                   </div>
                 </div>
 
-                {/* Главный заголовок РИТМ */}
+                {/* Заголовок РИТМ */}
                 <div className="mb-8">
                   <h1 className="text-5xl font-extrabold font-brand tracking-widest text-white uppercase mb-2 drop-shadow-lg">
                     РИТМ
@@ -469,17 +732,19 @@
                   </p>
                 </div>
 
-                {/* ================= ВКЛАДКА: ГЛАВНАЯ (1 в 1 со скриншота) ================= */}
+                {/* Таб 1: ГЛАВНАЯ (в точности 1 в 1 как со скриншота) */}
                 {activeTab === 'home' && (
                   <div className="grid grid-cols-12 gap-7 items-start">
-                    {/* Левая колонка (Расписание на сегодня + Перекличка) */}
+                    {/* Левая колонка */}
                     <div className="col-span-8 space-y-7">
-                      {/* Карточка: Расписание на сегодня */}
-                      <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
+                      {/* Карточка 1: Расписание на сегодня */}
+                      <div className="bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
                         <div className="flex items-center justify-between mb-5">
                           <div className="flex items-center gap-2.5">
-                            <span className="w-2 h-2 rounded-full bg-[#EF233C] shadow-[0_0_10px_#EF233C]"></span>
-                            <h2 className="text-[15px] font-semibold text-white tracking-wide">Расписание на сегодня</h2>
+                            <span className="w-2 h-2 rounded-full bg-[#EF233C] shadow-[0_0_8px_#EF233C]"></span>
+                            <h2 className="text-[15px] font-semibold text-white tracking-wide">
+                              Расписание на сегодня
+                            </h2>
                           </div>
                           <button
                             onClick={() => handleTabSwitch('schedule')}
@@ -490,112 +755,106 @@
                           </button>
                         </div>
 
-                        <div className="space-y-4">
-                          {/* 1 пара: Отмена */}
-                          <div className="flex items-center justify-between p-3.5 rounded-xl hover:bg-[#1A1D27]/60 transition-colors border-b border-white/[0.04] pb-4">
-                            <div className="w-32 shrink-0">
-                              <div className="text-[13px] font-bold text-white font-mono">08:30 – 10:00</div>
-                              <div className="text-[11px] text-[#8E95A5] mt-0.5 font-medium">Ауд. 203</div>
-                            </div>
-                            <div className="flex-1 px-4 min-w-0">
-                              <div className="text-[13px] font-semibold text-white truncate">Высшая математика</div>
-                              <div className="text-[11px] text-[#8E95A5] truncate mt-0.5">Иванов А. С.</div>
-                            </div>
-                            <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#351219] text-[#EF233C] border border-[#EF233C]/50 shadow-sm">
-                              ОТМЕНА
-                            </span>
-                          </div>
+                        <div className="space-y-3.5">
+                          {todayLessons.map((lesson, idx) => (
+                            <div
+                              key={lesson.id}
+                              onClick={() => setEditingLesson(lesson)}
+                              className={`group relative flex items-center justify-between p-3.5 rounded-xl hover:bg-[#1A1D27]/60 transition-colors cursor-pointer ${idx !== todayLessons.length - 1 ? 'border-b border-white/[0.04] pb-4' : ''}`}
+                            >
+                              <div className="w-32 shrink-0">
+                                <div className="text-[13px] font-bold text-white tracking-tight font-mono">
+                                  {lesson.timeStart} – {lesson.timeEnd}
+                                </div>
+                                <div className="text-[11px] text-[#8E95A5] mt-0.5 font-medium">
+                                  {lesson.room}
+                                </div>
+                              </div>
 
-                          {/* 2 пара: По плану */}
-                          <div className="flex items-center justify-between p-3.5 rounded-xl hover:bg-[#1A1D27]/60 transition-colors border-b border-white/[0.04] pb-4">
-                            <div className="w-32 shrink-0">
-                              <div className="text-[13px] font-bold text-white font-mono">10:15 – 11:45</div>
-                              <div className="text-[11px] text-[#8E95A5] mt-0.5 font-medium">Ауд. 108</div>
-                            </div>
-                            <div className="flex-1 px-4 min-w-0">
-                              <div className="text-[13px] font-semibold text-white truncate">Программирование</div>
-                              <div className="text-[11px] text-[#8E95A5] truncate mt-0.5">Петров К. В.</div>
-                            </div>
-                            <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#093325] text-[#10B981] border border-[#10B981]/50 shadow-sm">
-                              ПО ПЛАНУ
-                            </span>
-                          </div>
+                              <div className="flex-1 px-4 min-w-0">
+                                <div className="text-[13px] font-semibold text-white truncate group-hover:text-red-400 transition-colors">
+                                  {lesson.subject}
+                                </div>
+                                <div className="text-[11px] text-[#8E95A5] truncate mt-0.5">
+                                  {lesson.teacher}
+                                </div>
+                              </div>
 
-                          {/* 3 пара: Дедлайн */}
-                          <div className="flex items-center justify-between p-3.5 rounded-xl hover:bg-[#1A1D27]/60 transition-colors">
-                            <div className="w-32 shrink-0">
-                              <div className="text-[13px] font-bold text-white font-mono">12:15 – 13:45</div>
-                              <div className="text-[11px] text-[#8E95A5] mt-0.5 font-medium">Ауд. 314</div>
+                              <div className="shrink-0 pl-1 flex items-center gap-2">
+                                <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase select-none ${getBadgeClass(lesson.status)}`}>
+                                  {lesson.statusLabel}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex-1 px-4 min-w-0">
-                              <div className="text-[13px] font-semibold text-white truncate">Базы данных</div>
-                              <div className="text-[11px] text-[#8E95A5] truncate mt-0.5">Сидорова М. А.</div>
-                            </div>
-                            <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#38200B] text-[#F59E0B] border border-[#F59E0B]/50 shadow-sm">
-                              ДЕДЛАЙН
-                            </span>
-                          </div>
+                          ))}
                         </div>
                       </div>
 
-                      {/* Карточка: Перекличка */}
-                      <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
-                        <div className="flex items-center gap-2 mb-5">
-                          <IconUsers className="w-4 h-4 text-gray-300" />
-                          <h2 className="text-[15px] font-semibold text-white tracking-wide">Перекличка</h2>
+                      {/* Карточка 2: Перекличка */}
+                      <div className="bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
+                        <div className="flex items-center justify-between mb-5">
+                          <div className="flex items-center gap-2">
+                            <IconUsers className="w-4 h-4 text-gray-300" />
+                            <h2 className="text-[15px] font-semibold text-white tracking-wide">
+                              Перекличка
+                            </h2>
+                          </div>
+                          <button
+                            onClick={() => setIsRosterOpen(true)}
+                            className="text-xs text-[#8E95A5] hover:text-white transition-colors cursor-pointer"
+                          >
+                            Список группы →
+                          </button>
                         </div>
 
-                        {/* 4 кнопки в один ряд 1x4 */}
+                        {/* 4 кнопки статуса в 1 ряд на десктопе */}
                         <div className="grid grid-cols-4 gap-3 mb-6">
                           <button
                             onClick={() => handleStatusClick('present')}
-                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all bg-[#059669] hover:bg-[#10B981] active:scale-98 select-none ${
-                              myStatus === 'present' ? 'ring-2 ring-white/90 shadow-[0_0_16px_rgba(16,185,129,0.5)] scale-[1.02]' : 'opacity-90'
-                            }`}
+                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all duration-200 select-none active:scale-95 cursor-pointer bg-[#059669] hover:bg-[#10B981] ${myStatus === 'present' ? 'ring-2 ring-white/90 shadow-lg' : 'opacity-90 hover:opacity-100'}`}
                           >
-                            <IconCheck className="w-4 h-4" />
-                            <span>На парах</span>
+                            <IconCheck className="w-4 h-4 stroke-[2.5]" />
+                            <span className="truncate">На парах</span>
                           </button>
 
                           <button
                             onClick={() => handleStatusClick('late')}
-                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all bg-[#B45309] hover:bg-[#D97706] active:scale-98 select-none ${
-                              myStatus === 'late' ? 'ring-2 ring-white/90 shadow-[0_0_16px_rgba(217,119,6,0.5)] scale-[1.02]' : 'opacity-90'
-                            }`}
+                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all duration-200 select-none active:scale-95 cursor-pointer bg-[#B45309] hover:bg-[#D97706] ${myStatus === 'late' ? 'ring-2 ring-white/90 shadow-lg' : 'opacity-90 hover:opacity-100'}`}
                           >
-                            <IconClock className="w-4 h-4" />
-                            <span>Опаздываю</span>
+                            <IconClock className="w-4 h-4 stroke-[2]" />
+                            <span className="truncate">Опаздываю</span>
                           </button>
 
                           <button
                             onClick={() => handleStatusClick('excuse')}
-                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all bg-[#4F46E5] hover:bg-[#6366F1] active:scale-98 select-none ${
-                              myStatus === 'excuse' ? 'ring-2 ring-white/90 shadow-[0_0_16px_rgba(99,102,241,0.5)] scale-[1.02]' : 'opacity-90'
-                            }`}
+                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all duration-200 select-none active:scale-95 cursor-pointer bg-[#4F46E5] hover:bg-[#6366F1] ${myStatus === 'excuse' ? 'ring-2 ring-white/90 shadow-lg' : 'opacity-90 hover:opacity-100'}`}
                           >
-                            <IconShield className="w-4 h-4" />
-                            <span>Уважительная</span>
+                            <IconShield className="w-4 h-4 stroke-[2]" />
+                            <span className="truncate">Уважительная</span>
                           </button>
 
                           <button
                             onClick={() => handleStatusClick('absent')}
-                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all bg-[#DC2626] hover:bg-[#EF4444] active:scale-98 select-none ${
-                              myStatus === 'absent' ? 'ring-2 ring-white/90 shadow-[0_0_16px_rgba(239,68,68,0.5)] scale-[1.02]' : 'opacity-90'
-                            }`}
+                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all duration-200 select-none active:scale-95 cursor-pointer bg-[#991B1B] hover:bg-[#DC2626] ${myStatus === 'absent' ? 'ring-2 ring-white/90 shadow-lg' : 'opacity-90 hover:opacity-100'}`}
                           >
-                            <IconCross className="w-4 h-4" />
-                            <span>Отсутствую</span>
+                            <IconX className="w-4 h-4 stroke-[2.5]" />
+                            <span className="truncate">Отсутствую</span>
                           </button>
                         </div>
 
-                        {/* Информационная строка явки */}
+                        {/* Информационная строка: Явка и Экспорт */}
                         <div className="space-y-3">
                           <div className="flex items-center justify-between text-xs font-medium text-gray-200">
-                            <div>
-                              Явка: <b className="text-white font-bold">{attended} из {totalStudents}</b> <span className="text-[#8E95A5] font-mono">({percent}%)</span>
+                            <div onClick={() => setIsRosterOpen(true)} className="flex items-center gap-1.5 font-sans cursor-pointer group">
+                              <span className="text-[#8E95A5] group-hover:text-gray-300">Явка:</span>
+                              <span className="font-bold text-white group-hover:underline">
+                                {attended} из {totalStudents}
+                              </span>
+                              <span className="text-[#8E95A5] font-mono">({percent}%)</span>
                             </div>
+
                             <button
-                              onClick={handleExport}
+                              onClick={() => setIsExportOpen(true)}
                               className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#1A1D27] hover:bg-[#252937] text-gray-300 hover:text-white border border-white/10 text-[11px] font-mono transition-all active:scale-95 cursor-pointer shadow-sm"
                             >
                               <IconDownload className="w-3.5 h-3.5 text-gray-400" />
@@ -603,10 +862,10 @@
                             </button>
                           </div>
 
-                          {/* Неоновый прогресс-бар РИТМ */}
+                          {/* Неоновый прогресс-бар */}
                           <div className="w-full h-1.5 bg-[#1F222E] rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-gradient-to-r from-[#EF233C] to-[#FF2A4B] rounded-full transition-all duration-500 shadow-[0_0_14px_rgba(239,35,60,0.9)]"
+                              className="h-full bg-gradient-to-r from-[#EF233C] to-[#FF2A4B] rounded-full transition-all duration-500 ease-out shadow-[0_0_14px_rgba(239,35,60,0.9)]"
                               style={{ width: `${percent}%` }}
                             ></div>
                           </div>
@@ -614,240 +873,321 @@
                       </div>
                     </div>
 
-                    {/* Правая колонка (Важно + Быстрые ссылки) */}
+                    {/* Правая колонка */}
                     <div className="col-span-4 space-y-7">
-                      {/* Карточка: Важно */}
-                      <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
+                      {/* Карточка 3: Важно */}
+                      <div className="bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
                         <div className="flex items-center gap-2 mb-4">
                           <IconZap className="w-4 h-4 text-[#EF233C]" />
-                          <h3 className="text-sm font-semibold text-white">Важно</h3>
+                          <h3 className="text-sm font-semibold text-white tracking-wide">Важно</h3>
                         </div>
 
                         <div className="p-4 rounded-xl bg-[#20151C] border border-[#EF233C]/20">
                           <div className="flex items-start gap-3">
-                            <span className="w-5 h-5 rounded-full bg-[#EF233C] text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                            <div className="w-5 h-5 rounded-full bg-[#EF233C] text-white flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold font-mono">
                               !
-                            </span>
+                            </div>
                             <div className="flex-1 min-w-0">
                               <div className="text-xs font-semibold text-white leading-snug">
-                                Занятие по математике отменено
+                                {cancellationAlert.status === 'CANCELLED' ? `Занятие по ${cancellationAlert.subject.toLowerCase()} отменено` : `Занятие по ${cancellationAlert.subject.toLowerCase()} ${cancellationAlert.statusLabel.toLowerCase()}`}
                               </div>
-                              <div className="text-[11px] text-[#8E95A5] mt-1">Сегодня, 08:00</div>
+                              <div className="text-[11px] text-[#8E95A5] mt-1">{cancellationAlert.dateStr}</div>
+
+                              {isImportantOpen && (
+                                <p className="text-[11px] text-gray-300 mt-2.5 pt-2.5 border-t border-white/10 leading-relaxed">
+                                  {cancellationAlert.reason}
+                                </p>
+                              )}
+
                               <button
                                 onClick={() => setIsImportantOpen(!isImportantOpen)}
-                                className="flex items-center gap-1 text-[11px] font-medium text-gray-300 hover:text-white mt-2.5 transition-colors cursor-pointer"
+                                className="flex items-center gap-1 text-[11px] font-medium text-gray-300 hover:text-white mt-2.5 group transition-colors cursor-pointer"
                               >
                                 <span>{isImportantOpen ? 'Скрыть' : 'Подробнее'}</span>
-                                <IconArrowRight className="w-3 h-3" />
+                                <IconArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                               </button>
                             </div>
                           </div>
-
-                          {isImportantOpen && (
-                            <p className="text-[11px] text-gray-300 mt-3 pt-3 border-t border-white/10 leading-relaxed animate-in fade-in">
-                              Уведомление от деканата: пара по высшей математике (08:30–10:00) отменена в связи с командировкой преподавателя Иванова А. С. Перенос будет согласован со старостой группы.
-                            </p>
-                          )}
                         </div>
                       </div>
 
-                      {/* Карточка: Быстрые ссылки */}
-                      <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
+                      {/* Карточка 4: Быстрые ссылки */}
+                      <div className="bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
                         <div className="flex items-center gap-2 mb-4">
                           <IconLink className="w-4 h-4 text-gray-400" />
-                          <h3 className="text-sm font-semibold text-white">Быстрые ссылки</h3>
+                          <h3 className="text-sm font-semibold text-white tracking-wide">Быстрые ссылки</h3>
                         </div>
 
                         <div className="space-y-2 text-xs">
                           <button
                             onClick={() => handleTabSwitch('schedule')}
-                            className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#1A1D27] text-left text-gray-300 hover:text-white transition-colors group cursor-pointer"
+                            className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#1A1D27] text-left text-gray-300 hover:text-white transition-all group cursor-pointer"
                           >
                             <span>Расписание недели</span>
-                            <IconArrowRight className="w-3.5 h-3.5 text-gray-500 group-hover:text-white group-hover:translate-x-0.5 transition-transform" />
+                            <IconArrowRight className="w-3.5 h-3.5 text-gray-500 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
                           </button>
 
                           <button
                             onClick={() => handleTabSwitch('stats')}
-                            className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#1A1D27] text-left text-gray-300 hover:text-white transition-colors group cursor-pointer"
+                            className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#1A1D27] text-left text-gray-300 hover:text-white transition-all group cursor-pointer"
                           >
                             <span>Статистика посещаемости</span>
-                            <IconArrowRight className="w-3.5 h-3.5 text-gray-500 group-hover:text-white group-hover:translate-x-0.5 transition-transform" />
+                            <IconArrowRight className="w-3.5 h-3.5 text-gray-500 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
                           </button>
 
                           <button
                             onClick={() => setIsContactsOpen(true)}
-                            className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#1A1D27] text-left text-gray-300 hover:text-white transition-colors group cursor-pointer"
+                            className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#1A1D27] text-left text-gray-300 hover:text-white transition-all group cursor-pointer"
                           >
                             <span>Контакты деканата</span>
-                            <IconArrowRight className="w-3.5 h-3.5 text-gray-500 group-hover:text-white group-hover:translate-x-0.5 transition-transform" />
+                            <IconArrowRight className="w-3.5 h-3.5 text-gray-500 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
                           </button>
                         </div>
                       </div>
 
-                      {/* Водяной знак РИТМ всегда рядом */}
+                      {/* Подвал справа */}
                       <div className="text-right pt-4 pr-1 select-none">
-                        <div className="text-xs font-bold text-gray-500 font-brand tracking-widest">РИТМ</div>
-                        <div className="text-[10px] text-gray-600 mt-0.5 font-normal">всегда рядом</div>
+                        <span className="text-xs font-bold text-gray-500 font-brand tracking-widest block">
+                          РИТМ
+                        </span>
+                        <span className="text-[10px] text-gray-600 font-normal">всегда рядом</span>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* ================= ВКЛАДКА: РАСПИСАНИЕ ================= */}
+                {/* Таб 2: РАСПИСАНИЕ С ИМПОРТОМ И ТАБЛИЦЕЙ */}
                 {activeTab === 'schedule' && (
-                  <div className="space-y-6">
-                    {/* Переключатель дней недели */}
-                    <div className="flex gap-2">
-                      {WEEK_SCHEDULE.map((day, idx) => (
+                  <div className="space-y-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div>
+                        <h2 className="text-xl font-bold font-brand tracking-wide text-white">Расписание занятий</h2>
+                        <p className="text-xs text-[#8E95A5]">Группа ИВТ-21 • Нечетная неделя</p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {/* Переключатель вида */}
+                        <div className="flex items-center bg-[#1A1D27] p-1 rounded-xl border border-white/10 text-xs">
+                          <button
+                            onClick={() => setScheduleViewMode('cards')}
+                            className={`px-3 py-1.5 rounded-lg transition-all ${scheduleViewMode === 'cards' ? 'bg-[#EF233C] text-white' : 'text-gray-400 hover:text-white'}`}
+                          >
+                            Карточки
+                          </button>
+                          <button
+                            onClick={() => setScheduleViewMode('table')}
+                            className={`px-3 py-1.5 rounded-lg transition-all ${scheduleViewMode === 'table' ? 'bg-[#EF233C] text-white' : 'text-gray-400 hover:text-white'}`}
+                          >
+                            Таблица
+                          </button>
+                        </div>
+
+                        {/* Кнопка импорта */}
                         <button
-                          key={day.day}
+                          onClick={() => setIsImportOpen(true)}
+                          className="px-3.5 py-1.5 rounded-xl bg-[#EF233C]/15 hover:bg-[#EF233C]/25 text-[#EF233C] border border-[#EF233C]/30 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <IconUpload className="w-3.5 h-3.5" />
+                          <span>Импорт</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Дни недели */}
+                    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                      {schedule.map((day, idx) => (
+                        <button
+                          key={day.dayOfWeek}
                           onClick={() => setSelectedScheduleDay(idx)}
-                          className={`px-5 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                          className={`flex-1 min-w-[70px] py-2.5 px-2 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer ${
                             selectedScheduleDay === idx
-                              ? 'bg-[#EF233C] text-white shadow-[0_0_16px_rgba(239,35,60,0.35)]'
-                              : 'bg-[#13151B] text-gray-400 hover:text-white border border-white/[0.08]'
+                              ? 'bg-gradient-to-b from-[#EF233C] to-[#C81D32] text-white shadow-lg'
+                              : 'bg-[#14161D] text-gray-400 hover:text-white border border-white/[0.06]'
                           }`}
                         >
-                          <div>{day.day}</div>
-                          <div className="text-[10px] opacity-80 mt-0.5">{day.date}</div>
+                          <span className="text-[11px] font-semibold">{day.dayOfWeek.slice(0, 2)}</span>
+                          <span className="text-[10px] mt-0.5 opacity-80">{day.dateStr ? day.dateStr.split(' ')[0] : idx + 13}</span>
                         </button>
                       ))}
                     </div>
 
-                    <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-xl space-y-4">
-                      <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                        <h3 className="text-base font-bold text-white">
-                          {WEEK_SCHEDULE[selectedScheduleDay].day}, {WEEK_SCHEDULE[selectedScheduleDay].date}
-                        </h3>
-                        {WEEK_SCHEDULE[selectedScheduleDay].isToday && (
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#EF233C]/20 text-[#EF233C] border border-[#EF233C]/30">
-                            СЕГОДНЯ
-                          </span>
-                        )}
-                      </div>
+                    {/* Выбранный день */}
+                    <div className="flex items-center justify-between text-xs text-gray-300">
+                      <span className="font-bold text-white text-sm">
+                        {schedule[selectedScheduleDay]?.dayOfWeek} ({schedule[selectedScheduleDay]?.dateStr || ''})
+                      </span>
+                      {schedule[selectedScheduleDay]?.isToday && (
+                        <span className="text-[10px] font-bold text-[#EF233C] bg-[#EF233C]/10 px-2 py-0.5 rounded-full border border-[#EF233C]/20">
+                          СЕГОДНЯ
+                        </span>
+                      )}
+                    </div>
 
+                    {/* Режим 1: Карточки */}
+                    {scheduleViewMode === 'cards' && (
                       <div className="space-y-3">
-                        {WEEK_SCHEDULE[selectedScheduleDay].lessons.map((lesson, i) => (
-                          <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-[#1A1D27] border border-white/5">
-                            <div className="w-36 shrink-0">
-                              <div className="text-sm font-semibold text-white font-mono">{lesson.time}</div>
-                              <div className="text-xs text-[#8E95A5] mt-0.5">{lesson.room}</div>
+                        {schedule[selectedScheduleDay]?.lessons.map(lesson => (
+                          <div key={lesson.id} className="p-4 rounded-2xl bg-[#14161D] border border-white/[0.08] space-y-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2 text-xs font-mono font-semibold text-gray-300">
+                                <IconClock className="w-3.5 h-3.5 text-[#EF233C]" />
+                                <span>{lesson.timeStart} – {lesson.timeEnd}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase ${getBadgeClass(lesson.status)}`}>
+                                  {lesson.statusLabel}
+                                </span>
+                                <button
+                                  onClick={() => setEditingLesson(lesson)}
+                                  className="p-1.5 rounded-lg bg-[#1E2230] text-gray-400 hover:text-[#EF233C] cursor-pointer transition-colors"
+                                  title="Редактировать / Отменить пару"
+                                >
+                                  <IconEdit className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex-1 px-4">
-                              <div className="text-sm font-semibold text-gray-100">{lesson.subject}</div>
-                              <div className="text-xs text-[#8E95A5] mt-0.5">{lesson.teacher}</div>
+                            <div>
+                              <div className="text-sm font-bold text-white">{lesson.subject}</div>
+                              <div className="flex items-center gap-4 mt-1.5 text-xs text-gray-400">
+                                <span className="flex items-center gap-1"><IconUser className="w-3.5 h-3.5" />{lesson.teacher}</span>
+                                <span className="flex items-center gap-1"><IconMapPin className="w-3.5 h-3.5" />{lesson.room}</span>
+                              </div>
                             </div>
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase ${getBadgeClass(lesson.style)}`}>
-                              {lesson.status}
-                            </span>
+                            {lesson.note && (
+                              <div className="text-xs text-gray-300 p-2.5 rounded-xl bg-[#1A1D27] border border-white/5">
+                                {lesson.note}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
-                    </div>
+                    )}
+
+                    {/* Режим 2: Таблица */}
+                    {scheduleViewMode === 'table' && (
+                      <div className="overflow-x-auto rounded-2xl border border-white/[0.08] bg-[#14161D]">
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-[#1A1D27] text-gray-400 border-b border-white/[0.06] font-mono uppercase text-[10px]">
+                            <tr>
+                              <th className="py-3 px-4">Время</th>
+                              <th className="py-3 px-4">Дисциплина</th>
+                              <th className="py-3 px-4">Аудитория</th>
+                              <th className="py-3 px-4">Преподаватель</th>
+                              <th className="py-3 px-4 text-center">Статус</th>
+                              <th className="py-3 px-4 text-right">Действие</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/[0.04]">
+                            {schedule[selectedScheduleDay]?.lessons.map(lesson => (
+                              <tr key={lesson.id} className="hover:bg-[#1A1D27]/40">
+                                <td className="py-3 px-4 font-mono font-semibold text-white whitespace-nowrap">{lesson.timeStart} – {lesson.timeEnd}</td>
+                                <td className="py-3 px-4 font-bold text-white max-w-[200px] truncate">{lesson.subject}</td>
+                                <td className="py-3 px-4 text-gray-300">{lesson.room}</td>
+                                <td className="py-3 px-4 text-gray-400">{lesson.teacher}</td>
+                                <td className="py-3 px-4 text-center whitespace-nowrap">
+                                  <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase ${getBadgeClass(lesson.status)}`}>
+                                    {lesson.statusLabel}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-4 text-right">
+                                  <button
+                                    onClick={() => setEditingLesson(lesson)}
+                                    className="px-2.5 py-1 rounded-lg bg-[#1E2230] hover:bg-[#EF233C]/20 text-gray-300 hover:text-[#EF233C] text-[11px] font-semibold transition-all cursor-pointer"
+                                  >
+                                    Правка
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {/* ================= ВКЛАДКА: СТАТИСТИКА ================= */}
+                {/* Таб 3: СТАТИСТИКА И БАЗА ГРУППЫ */}
                 {activeTab === 'stats' && (
                   <div className="space-y-6">
-                    <div className="grid grid-cols-3 gap-6">
-                      <div className="p-6 rounded-[20px] bg-[#13151B] border border-white/[0.08] shadow-lg">
-                        <div className="text-xs text-[#8E95A5] font-medium">Общая явка группы</div>
-                        <div className="text-4xl font-extrabold text-white mt-2 font-brand">89.4%</div>
-                        <div className="w-full h-1.5 bg-[#1F222E] rounded-full mt-4 overflow-hidden">
-                          <div className="h-full bg-emerald-500 rounded-full" style={{ width: '89.4%' }}></div>
-                        </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h2 className="text-xl font-bold font-brand tracking-wide text-white">Статистика группы</h2>
+                        <p className="text-xs text-[#8E95A5]">Группа ИВТ-21 • {totalStudents} студентов</p>
                       </div>
+                      <button
+                        onClick={() => setIsRosterOpen(true)}
+                        className="px-3.5 py-1.5 rounded-xl bg-[#EF233C] text-white text-xs font-bold hover:bg-[#D90429] shadow-md cursor-pointer flex items-center gap-1.5"
+                      >
+                        <IconUsers className="w-3.5 h-3.5" />
+                        <span>База группы</span>
+                      </button>
+                    </div>
 
-                      <div className="p-6 rounded-[20px] bg-[#13151B] border border-white/[0.08] shadow-lg">
-                        <div className="text-xs text-[#8E95A5] font-medium">Без единого пропуска</div>
-                        <div className="text-4xl font-extrabold text-emerald-400 mt-2 font-brand">16 чел</div>
-                        <div className="text-xs text-gray-500 mt-2">57% состава группы</div>
-                      </div>
-
-                      <div className="p-6 rounded-[20px] bg-[#13151B] border border-white/[0.08] shadow-lg">
-                        <div className="text-xs text-[#8E95A5] font-medium">Группа риска (> 30% пропусков)</div>
-                        <div className="text-4xl font-extrabold text-amber-400 mt-2 font-brand">3 чел</div>
-                        <div className="text-xs text-gray-500 mt-2">Требуется беседа старосты</div>
+                    <div className="p-5 rounded-2xl bg-gradient-to-br from-[#161822] to-[#12131A] border border-white/10">
+                      <div className="text-xs text-gray-400">Общая явка группы сегодня</div>
+                      <div className="text-4xl font-extrabold text-white mt-1 font-brand">{percent}%</div>
+                      <div className="w-full h-2 bg-[#1F222E] rounded-full mt-3 overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-[#EF233C] to-[#10B981] rounded-full" style={{ width: `${percent}%` }}></div>
                       </div>
                     </div>
 
-                    <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-6 shadow-xl space-y-4">
-                      <h3 className="text-sm font-bold text-white">Явка по дисциплинам</h3>
-                      <div className="space-y-4">
-                        <div>
-                          <div className="flex justify-between text-xs mb-1.5">
-                            <span className="text-gray-200">Программирование (Петров К. В.)</span>
-                            <span className="text-emerald-400 font-mono font-bold">96%</span>
-                          </div>
-                          <div className="w-full h-2 bg-[#1F222E] rounded-full overflow-hidden">
-                            <div className="h-full bg-emerald-500 rounded-full" style={{ width: '96%' }}></div>
-                          </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 rounded-2xl bg-[#14161D] border border-white/10">
+                        <div className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
+                          <IconCheck className="w-4 h-4" /> На парах
                         </div>
-
-                        <div>
-                          <div className="flex justify-between text-xs mb-1.5">
-                            <span className="text-gray-200">Базы данных (Сидорова М. А.)</span>
-                            <span className="text-emerald-400 font-mono font-bold">91%</span>
-                          </div>
-                          <div className="w-full h-2 bg-[#1F222E] rounded-full overflow-hidden">
-                            <div className="h-full bg-emerald-500 rounded-full" style={{ width: '91%' }}></div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <div className="flex justify-between text-xs mb-1.5">
-                            <span className="text-gray-200">Высшая математика (Иванов А. С.)</span>
-                            <span className="text-amber-400 font-mono font-bold">78%</span>
-                          </div>
-                          <div className="w-full h-2 bg-[#1F222E] rounded-full overflow-hidden">
-                            <div className="h-full bg-amber-500 rounded-full" style={{ width: '78%' }}></div>
-                          </div>
-                        </div>
+                        <div className="text-2xl font-bold text-white mt-2">{counts.present} чел.</div>
                       </div>
+                      <div className="p-4 rounded-2xl bg-[#14161D] border border-white/10">
+                        <div className="text-xs text-rose-400 font-semibold flex items-center gap-1.5">
+                          <IconX className="w-4 h-4" /> Отсутствуют
+                        </div>
+                        <div className="text-2xl font-bold text-white mt-2">{counts.absent} чел.</div>
+                      </div>
+                    </div>
+
+                    {/* Блок быстрого доступа к профилям Telegram */}
+                    <div className="p-5 rounded-2xl bg-[#14161D] border border-white/10 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-bold text-white">Список студентов и Telegram-ники</h3>
+                        <button onClick={copyReportToClipboard} className="text-xs text-[#EF233C] hover:underline flex items-center gap-1">
+                          <IconCopy className="w-3 h-3" />
+                          <span>Скопировать отчет для деканата</span>
+                        </button>
+                      </div>
+                      <div className="space-y-1.5 max-h-60 overflow-y-auto pr-1">
+                        {students.slice(0, 8).map(s => (
+                          <div key={s.id} className="flex items-center justify-between p-2 rounded-xl bg-[#1A1D27] text-xs">
+                            <span className="text-gray-200 truncate">{s.name}</span>
+                            {s.username ? (
+                              <a href={`https://t.me/${s.username}`} target="_blank" rel="noreferrer" className="text-[#EF233C] hover:underline flex items-center gap-1 text-[11px]">
+                                <span>@{s.username}</span>
+                                <IconExternal className="w-3 h-3" />
+                              </a>
+                            ) : (
+                              <span className="text-gray-500">—</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <button onClick={() => setIsRosterOpen(true)} className="w-full py-2.5 rounded-xl bg-[#1E2230] text-gray-200 text-xs font-semibold hover:bg-[#25293A]">
+                        Открыть всех {totalStudents} студентов
+                      </button>
                     </div>
                   </div>
                 )}
 
-                {/* ================= ВКЛАДКА: НАСТРОЙКИ ================= */}
+                {/* Таб 4: НАСТРОЙКИ */}
                 {activeTab === 'settings' && (
-                  <div className="max-w-2xl space-y-5">
-                    <div className="p-6 rounded-[20px] bg-[#13151B] border border-white/[0.08] flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-[#EF233C] flex items-center justify-center text-sm font-bold text-white shadow-md">
-                        ИБ
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold text-white">Иван Борисов (Староста)</div>
-                        <div className="text-xs text-[#8E95A5] mt-0.5">Учебная группа ИВТ-21 • Telegram Mini App</div>
-                      </div>
-                    </div>
-
-                    <div className="p-6 rounded-[20px] bg-[#13151B] border border-white/[0.08] space-y-4">
-                      <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Параметры уведомлений</h3>
-                      
-                      <div className="flex items-center justify-between py-2.5 border-b border-white/5">
-                        <div>
-                          <div className="text-xs font-semibold text-white">Мгновенные алерты об отменах пар</div>
-                          <div className="text-[11px] text-[#8E95A5]">Присылать сразу при публикации в деканате</div>
-                        </div>
-                        <input type="checkbox" defaultChecked className="w-4 h-4 accent-[#EF233C] cursor-pointer" />
-                      </div>
-
-                      <div className="flex items-center justify-between py-2.5 border-b border-white/5">
-                        <div>
-                          <div className="text-xs font-semibold text-white">Утренний дайджест в 07:30</div>
-                          <div className="text-[11px] text-[#8E95A5]">Расписание на день и статус первой пары</div>
-                        </div>
-                        <input type="checkbox" defaultChecked className="w-4 h-4 accent-[#EF233C] cursor-pointer" />
-                      </div>
-
-                      <div className="flex items-center justify-between py-2.5">
-                        <div>
-                          <div className="text-xs font-semibold text-white">Тактильный отклик (Haptic Feedback)</div>
-                          <div className="text-[11px] text-[#8E95A5]">Вибрация при нажатии кнопок в Telegram</div>
-                        </div>
-                        <input type="checkbox" defaultChecked className="w-4 h-4 accent-[#EF233C] cursor-pointer" />
+                  <div className="space-y-5">
+                    <h2 className="text-xl font-bold font-brand tracking-wide text-white">Настройки</h2>
+                    <div className="p-5 rounded-2xl bg-[#14161D] border border-white/10 space-y-3 text-xs">
+                      <div className="text-gray-200"><b>Пользователь:</b> Иван Борисов (Староста)</div>
+                      <div className="text-gray-200"><b>Группа:</b> ИВТ-21</div>
+                      <div className="text-gray-200"><b>Утренний дайджест:</b> Включен (07:30 MSK)</div>
+                      <div className="text-gray-200"><b>Оповещения об отменах:</b> Активны в чате группы</div>
+                      <div className="pt-2 border-t border-white/5 text-[#8E95A5] text-[11px]">
+                        РИТМ Telegram Mini App v1.3.0 • Разработано для старост
                       </div>
                     </div>
                   </div>
@@ -855,192 +1195,134 @@
               </main>
             </div>
 
-            {/* ========================================================= */}
-            {/* ========= МОБИЛЬНЫЙ ВИД TELEGRAM MINI APP (<1024px) ===== */}
-            {/* ========================================================= */}
+            {/* ================= МОБИЛЬНЫЙ ВИД (<1024px) ================= */}
             <div className="w-full lg:hidden flex flex-col min-h-screen px-4 pb-24 pt-3 max-w-md mx-auto">
-              {/* Шапка мобайла (1 в 1 как в рамке iPhone на скриншоте) */}
-              <header className="w-full pt-1 pb-4">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2 select-none cursor-pointer" onClick={() => handleTabSwitch('home')}>
-                    <div className="flex items-center gap-1">
-                      <div className="w-1.5 h-5 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
-                      <div className="w-1.5 h-5 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
-                    </div>
-                    <span className="font-brand text-xl tracking-widest text-white uppercase leading-none">РИТМ</span>
+              {/* Шапка мобильная */}
+              <div className="flex items-center justify-between pb-3">
+                <div className="flex items-center gap-2 select-none" onClick={() => handleTabSwitch('home')}>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-5 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
+                    <div className="w-1.5 h-5 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-[#1A1D27] border border-white/10 flex items-center justify-center text-xs font-semibold text-gray-300">
-                    ИБ
-                  </div>
+                  <span className="font-brand text-xl tracking-widest text-white uppercase">РИТМ</span>
                 </div>
 
-                {/* Чипы даты и недели */}
-                <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-0.5">
-                  <button
-                    onClick={() => handleTabSwitch('schedule')}
-                    className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1A1D27] border border-white/10 text-xs font-medium text-gray-200 active:scale-95 transition-all whitespace-nowrap"
-                  >
-                    <IconCalendar className="w-3.5 h-3.5 text-gray-400" />
-                    <span>Пятница, 17 октября</span>
-                  </button>
-                  <div className="px-3.5 py-1.5 rounded-full bg-[#1A1D27] border border-white/10 text-xs font-medium text-gray-300 whitespace-nowrap">
-                    Нечетная неделя
-                  </div>
+                <div onClick={() => setIsRosterOpen(true)} className="w-8 h-8 rounded-full bg-[#1A1D27] border border-white/10 flex items-center justify-center text-xs font-semibold text-gray-300 cursor-pointer">
+                  ИБ
                 </div>
-              </header>
+              </div>
 
-              {/* Содержимое вкладки на мобильном */}
+              {/* Чипы даты */}
+              <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar pb-3">
+                <button onClick={() => handleTabSwitch('schedule')} className="px-3.5 py-1.5 rounded-full bg-[#1A1D27] border border-white/10 text-xs font-medium text-gray-200 flex items-center gap-2">
+                  <IconCalendar className="w-3.5 h-3.5 text-gray-400" />
+                  <span>Пятница, 17 октября</span>
+                </button>
+                <div className="px-3.5 py-1.5 rounded-full bg-[#1A1D27] border border-white/10 text-xs font-medium text-gray-300">
+                  Нечетная неделя
+                </div>
+              </div>
+
+              {/* Мобильный контент */}
               {activeTab === 'home' && (
                 <div className="space-y-4">
-                  {/* Карточка: Расписание на сегодня */}
-                  <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-4 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
-                    <div className="flex items-center gap-2 mb-4">
-                      <span className="w-2 h-2 rounded-full bg-[#EF233C] shadow-[0_0_8px_#EF233C]"></span>
-                      <h2 className="text-[15px] font-semibold text-white tracking-wide">Расписание на сегодня</h2>
+                  {/* Расписание на сегодня */}
+                  <div className="bg-[#13151B] rounded-[20px] border border-white/[0.08] p-5 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-[#EF233C]"></span>
+                        <h2 className="text-[14px] font-semibold text-white">Расписание на сегодня</h2>
+                      </div>
+                      <button onClick={() => handleTabSwitch('schedule')} className="text-xs text-[#8E95A5] flex items-center gap-1">
+                        Все <IconArrowRight className="w-3 h-3" />
+                      </button>
                     </div>
 
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 rounded-xl bg-[#1A1D27]/70 hover:bg-[#1E2230] cursor-pointer">
-                        <div className="w-24 shrink-0">
-                          <div className="text-[13px] font-bold text-white font-mono">08:30 – 10:00</div>
-                          <div className="text-[11px] text-[#8E95A5] mt-0.5">Ауд. 203</div>
+                      {todayLessons.map(lesson => (
+                        <div key={lesson.id} onClick={() => setEditingLesson(lesson)} className="p-3 rounded-xl bg-[#171922] border border-white/5 space-y-1.5 cursor-pointer">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-mono font-semibold text-gray-300">{lesson.timeStart} – {lesson.timeEnd}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getBadgeClass(lesson.status)}`}>{lesson.statusLabel}</span>
+                          </div>
+                          <div className="text-xs font-bold text-white truncate">{lesson.subject}</div>
+                          <div className="text-[11px] text-gray-400 flex items-center gap-3">
+                            <span>{lesson.teacher}</span>
+                            <span>{lesson.room}</span>
+                          </div>
                         </div>
-                        <div className="flex-1 px-3 min-w-0">
-                          <div className="text-[13px] font-semibold text-gray-100 truncate">Высшая математика</div>
-                          <div className="text-[11px] text-[#8E95A5] truncate mt-0.5">Иванов А. С.</div>
-                        </div>
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#351219] text-[#EF233C] border border-[#EF233C]/50">
-                          ОТМЕНА
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between p-3 rounded-xl bg-[#1A1D27]/70 hover:bg-[#1E2230] cursor-pointer">
-                        <div className="w-24 shrink-0">
-                          <div className="text-[13px] font-bold text-white font-mono">10:15 – 11:45</div>
-                          <div className="text-[11px] text-[#8E95A5] mt-0.5">Ауд. 108</div>
-                        </div>
-                        <div className="flex-1 px-3 min-w-0">
-                          <div className="text-[13px] font-semibold text-gray-100 truncate">Программирование</div>
-                          <div className="text-[11px] text-[#8E95A5] truncate mt-0.5">Петров К. В.</div>
-                        </div>
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#093325] text-[#10B981] border border-[#10B981]/50">
-                          ПО ПЛАНУ
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between p-3 rounded-xl bg-[#1A1D27]/70 hover:bg-[#1E2230] cursor-pointer">
-                        <div className="w-24 shrink-0">
-                          <div className="text-[13px] font-bold text-white font-mono">12:15 – 13:45</div>
-                          <div className="text-[11px] text-[#8E95A5] mt-0.5">Ауд. 314</div>
-                        </div>
-                        <div className="flex-1 px-3 min-w-0">
-                          <div className="text-[13px] font-semibold text-gray-100 truncate">Базы данных</div>
-                          <div className="text-[11px] text-[#8E95A5] truncate mt-0.5">Сидорова М. А.</div>
-                        </div>
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#38200B] text-[#F59E0B] border border-[#F59E0B]/50">
-                          ДЕДЛАЙН
-                        </span>
-                      </div>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Карточка: Перекличка */}
-                  <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-4 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
-                    <div className="flex items-center gap-2 mb-4">
-                      <IconUsers className="w-4 h-4 text-gray-300" />
-                      <h2 className="text-[15px] font-semibold text-white tracking-wide">Перекличка</h2>
+                  {/* Перекличка */}
+                  <div className="bg-[#13151B] rounded-[20px] border border-white/[0.08] p-5 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <IconUsers className="w-4 h-4 text-gray-300" />
+                        <h2 className="text-[14px] font-semibold text-white">Перекличка</h2>
+                      </div>
+                      <button onClick={() => setIsRosterOpen(true)} className="text-xs text-[#8E95A5]">Группа →</button>
                     </div>
 
-                    {/* Сетка 2x2 на мобайле */}
-                    <div className="grid grid-cols-2 gap-2.5 mb-5">
-                      <button
-                        onClick={() => handleStatusClick('present')}
-                        className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-semibold text-white bg-[#059669] active:scale-95 transition-all select-none ${
-                          myStatus === 'present' ? 'ring-2 ring-white/90 shadow-md' : 'opacity-90'
-                        }`}
-                      >
-                        <IconCheck className="w-4 h-4" />
-                        <span>На парах</span>
+                    <div className="grid grid-cols-2 gap-2.5 mb-4">
+                      <button onClick={() => handleStatusClick('present')} className={`flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold text-white bg-[#059669] ${myStatus === 'present' ? 'ring-2 ring-white' : ''}`}>
+                        <IconCheck className="w-4 h-4" /> На парах
                       </button>
-
-                      <button
-                        onClick={() => handleStatusClick('late')}
-                        className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-semibold text-white bg-[#B45309] active:scale-95 transition-all select-none ${
-                          myStatus === 'late' ? 'ring-2 ring-white/90 shadow-md' : 'opacity-90'
-                        }`}
-                      >
-                        <IconClock className="w-4 h-4" />
-                        <span>Опаздываю</span>
+                      <button onClick={() => handleStatusClick('late')} className={`flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold text-white bg-[#B45309] ${myStatus === 'late' ? 'ring-2 ring-white' : ''}`}>
+                        <IconClock className="w-4 h-4" /> Опаздываю
                       </button>
-
-                      <button
-                        onClick={() => handleStatusClick('excuse')}
-                        className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-semibold text-white bg-[#4F46E5] active:scale-95 transition-all select-none ${
-                          myStatus === 'excuse' ? 'ring-2 ring-white/90 shadow-md' : 'opacity-90'
-                        }`}
-                      >
-                        <IconShield className="w-4 h-4" />
-                        <span>Уважительная</span>
+                      <button onClick={() => handleStatusClick('excuse')} className={`flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold text-white bg-[#4F46E5] ${myStatus === 'excuse' ? 'ring-2 ring-white' : ''}`}>
+                        <IconShield className="w-4 h-4" /> Уважительная
                       </button>
-
-                      <button
-                        onClick={() => handleStatusClick('absent')}
-                        className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-semibold text-white bg-[#DC2626] active:scale-95 transition-all select-none ${
-                          myStatus === 'absent' ? 'ring-2 ring-white/90 shadow-md' : 'opacity-90'
-                        }`}
-                      >
-                        <IconCross className="w-4 h-4" />
-                        <span>Отсутствую</span>
+                      <button onClick={() => handleStatusClick('absent')} className={`flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold text-white bg-[#991B1B] ${myStatus === 'absent' ? 'ring-2 ring-white' : ''}`}>
+                        <IconX className="w-4 h-4" /> Отсутствую
                       </button>
                     </div>
 
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between text-xs font-medium text-gray-200">
-                        <div>
-                          Явка: <b className="text-white">{attended} из {totalStudents}</b> <span className="text-[#8E95A5]">({percent}%)</span>
-                        </div>
-                        <button
-                          onClick={handleExport}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1A1D27] hover:bg-[#252937] text-gray-300 border border-white/10 font-mono text-[11px] active:scale-95 transition-all"
-                        >
-                          <IconDownload className="w-3 h-3 text-gray-400" />
-                          <span>/export → .xlsx</span>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span onClick={() => setIsRosterOpen(true)} className="font-semibold text-white cursor-pointer">
+                          Явка: {attended} из {totalStudents} ({percent}%)
+                        </span>
+                        <button onClick={() => setIsExportOpen(true)} className="text-[11px] font-mono text-[#EF233C]">
+                          /export → .xlsx
                         </button>
                       </div>
                       <div className="w-full h-1.5 bg-[#1F222E] rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-[#EF233C] to-[#FF2A4B] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(239,35,60,0.8)]"
-                          style={{ width: `${percent}%` }}
-                        ></div>
+                        <div className="h-full bg-gradient-to-r from-[#EF233C] to-[#FF2A4B] rounded-full" style={{ width: `${percent}%` }}></div>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Важно */}
+                  <div className="p-4 rounded-2xl bg-[#14161D] border border-[#EF233C]/20">
+                    <div className="flex items-center gap-2 mb-2 text-xs font-bold text-white">
+                      <IconZap className="w-4 h-4 text-[#EF233C]" />
+                      <span>{cancellationAlert.status === 'CANCELLED' ? `Занятие по ${cancellationAlert.subject} отменено` : `Занятие по ${cancellationAlert.subject}`}</span>
+                    </div>
+                    <p className="text-[11px] text-gray-300">{cancellationAlert.reason}</p>
                   </div>
                 </div>
               )}
 
               {activeTab === 'schedule' && (
-                <div className="space-y-4 pt-1">
-                  <div className="text-sm font-bold font-brand tracking-wider text-white">Расписание недели</div>
-                  <div className="space-y-3">
-                    {WEEK_SCHEDULE.map((day) => (
-                      <div key={day.day} className="p-4 rounded-2xl bg-[#13151B] border border-white/10 space-y-2.5">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-white">{day.day}, {day.date}</span>
-                          {day.isToday && <span className="text-[10px] text-[#EF233C] font-bold">СЕГОДНЯ</span>}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-base font-bold font-brand text-white">Расписание</h2>
+                    <button onClick={() => setIsImportOpen(true)} className="px-3 py-1 bg-[#EF233C]/20 text-[#EF233C] rounded-lg text-xs font-bold border border-[#EF233C]/30">
+                      Импорт
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {schedule[selectedScheduleDay]?.lessons.map(lesson => (
+                      <div key={lesson.id} onClick={() => setEditingLesson(lesson)} className="p-3 rounded-xl bg-[#14161D] border border-white/5 space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="font-mono text-gray-300">{lesson.timeStart}–{lesson.timeEnd}</span>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getBadgeClass(lesson.status)}`}>{lesson.statusLabel}</span>
                         </div>
-                        <div className="space-y-2">
-                          {day.lessons.map((l, i) => (
-                            <div key={i} className="flex justify-between items-center text-xs p-2.5 rounded-xl bg-[#1A1D27]">
-                              <div>
-                                <div className="font-semibold text-gray-100">{l.subject}</div>
-                                <div className="text-[11px] text-[#8E95A5] mt-0.5">{l.time} • {l.room}</div>
-                              </div>
-                              <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase ${getBadgeClass(l.style)}`}>
-                                {l.status}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
+                        <div className="text-xs font-bold text-white">{lesson.subject}</div>
+                        <div className="text-[11px] text-gray-400">{lesson.teacher} • {lesson.room}</div>
                       </div>
                     ))}
                   </div>
@@ -1048,73 +1330,47 @@
               )}
 
               {activeTab === 'stats' && (
-                <div className="space-y-4 pt-1">
-                  <div className="text-sm font-bold font-brand tracking-wider text-white">Статистика группы ИВТ-21</div>
-                  <div className="p-5 rounded-2xl bg-[#13151B] border border-white/10">
-                    <div className="text-xs text-[#8E95A5]">Общая явка группы</div>
-                    <div className="text-3xl font-extrabold text-white mt-1 font-brand">89.4%</div>
-                    <div className="w-full h-1.5 bg-[#1F222E] rounded-full mt-3 overflow-hidden">
-                      <div className="h-full bg-emerald-500 rounded-full" style={{ width: '89.4%' }}></div>
-                    </div>
+                <div className="space-y-4">
+                  <h2 className="text-base font-bold font-brand text-white">Статистика</h2>
+                  <div className="p-4 rounded-xl bg-[#14161D] border border-white/10">
+                    <div className="text-xs text-gray-400">Явка группы</div>
+                    <div className="text-3xl font-extrabold text-white mt-1 font-brand">{percent}%</div>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="p-4 rounded-xl bg-[#13151B] border border-white/10">
-                      <div className="text-xs text-[#8E95A5]">Без пропусков</div>
-                      <div className="text-xl font-bold text-emerald-400 mt-1">16 чел</div>
-                    </div>
-                    <div className="p-4 rounded-xl bg-[#13151B] border border-white/10">
-                      <div className="text-xs text-[#8E95A5]">В зоне риска</div>
-                      <div className="text-xl font-bold text-amber-400 mt-1">3 чел</div>
-                    </div>
-                  </div>
+                  <button onClick={() => setIsRosterOpen(true)} className="w-full py-2.5 rounded-xl bg-[#EF233C] text-white text-xs font-bold">
+                    Открыть список всех 28 студентов
+                  </button>
                 </div>
               )}
 
               {activeTab === 'settings' && (
-                <div className="space-y-4 pt-1">
-                  <div className="text-sm font-bold font-brand tracking-wider text-white">Настройки</div>
-                  <div className="p-4 rounded-2xl bg-[#13151B] border border-white/10 text-xs space-y-2">
-                    <div className="text-gray-200"><b>Пользователь:</b> Иван Борисов (Староста)</div>
-                    <div className="text-gray-200"><b>Группа:</b> ИВТ-21</div>
-                    <div className="text-[#8E95A5] text-[11px] pt-2 border-t border-white/5">
-                      РИТМ Telegram Mini App • Версия 1.2.0
-                    </div>
+                <div className="space-y-4">
+                  <h2 className="text-base font-bold font-brand text-white">Настройки</h2>
+                  <div className="p-4 rounded-xl bg-[#14161D] border border-white/10 text-xs space-y-2">
+                    <div><b>Группа:</b> ИВТ-21</div>
+                    <div><b>Староста:</b> Иван Борисов</div>
                   </div>
                 </div>
               )}
 
-              {/* Нижний таб-бар на мобильном */}
+              {/* Нижний таб-бар */}
               <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#0B0C10]/95 backdrop-blur-md border-t border-white/[0.08] px-4 pt-2 pb-safe">
                 <div className="max-w-md mx-auto flex items-center justify-around pb-2">
-                  <button
-                    onClick={() => handleTabSwitch('home')}
-                    className={`flex flex-col items-center py-1 px-3 ${activeTab === 'home' ? 'text-[#EF233C]' : 'text-[#8E95A5]'}`}
-                  >
+                  <button onClick={() => handleTabSwitch('home')} className={`flex flex-col items-center py-1 px-3 ${activeTab === 'home' ? 'text-[#EF233C]' : 'text-[#8E95A5]'}`}>
                     <IconHome className="w-5 h-5" />
                     <span className="text-[10px] mt-1 font-medium">Главная</span>
                   </button>
 
-                  <button
-                    onClick={() => handleTabSwitch('schedule')}
-                    className={`flex flex-col items-center py-1 px-3 ${activeTab === 'schedule' ? 'text-[#EF233C]' : 'text-[#8E95A5]'}`}
-                  >
+                  <button onClick={() => handleTabSwitch('schedule')} className={`flex flex-col items-center py-1 px-3 ${activeTab === 'schedule' ? 'text-[#EF233C]' : 'text-[#8E95A5]'}`}>
                     <IconCalendar className="w-5 h-5" />
                     <span className="text-[10px] mt-1 font-medium">Расписание</span>
                   </button>
 
-                  <button
-                    onClick={() => handleTabSwitch('stats')}
-                    className={`flex flex-col items-center py-1 px-3 ${activeTab === 'stats' ? 'text-[#EF233C]' : 'text-[#8E95A5]'}`}
-                  >
+                  <button onClick={() => handleTabSwitch('stats')} className={`flex flex-col items-center py-1 px-3 ${activeTab === 'stats' ? 'text-[#EF233C]' : 'text-[#8E95A5]'}`}>
                     <IconStats className="w-5 h-5" />
                     <span className="text-[10px] mt-1 font-medium">Статистика</span>
                   </button>
 
-                  <button
-                    onClick={() => handleTabSwitch('settings')}
-                    className={`flex flex-col items-center py-1 px-3 ${activeTab === 'settings' ? 'text-[#EF233C]' : 'text-[#8E95A5]'}`}
-                  >
+                  <button onClick={() => handleTabSwitch('settings')} className={`flex flex-col items-center py-1 px-3 ${activeTab === 'settings' ? 'text-[#EF233C]' : 'text-[#8E95A5]'}`}>
                     <IconSettings className="w-5 h-5" />
                     <span className="text-[10px] mt-1 font-medium">Настройки</span>
                   </button>
@@ -1123,7 +1379,205 @@
             </div>
           </div>
 
-          {/* Модалка контактов деканата */}
+          {/* ================= МОДАЛКИ ================= */}
+
+          {/* 1. Модалка отмены / переноса пары старостой */}
+          {editingLesson && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4" onClick={() => setEditingLesson(null)}>
+              <div className="w-full max-w-lg bg-[#14161F] border border-white/10 rounded-2xl p-6 shadow-2xl space-y-4" onClick={e => e.stopPropagation()}>
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <div>
+                    <h3 className="text-base font-bold text-white font-brand">Шаблон старосты: Пара</h3>
+                    <p className="text-[11px] text-[#8E95A5]">Связано с расписанием и ботом группы</p>
+                  </div>
+                  <button onClick={() => setEditingLesson(null)} className="w-7 h-7 rounded-full bg-[#1A1D27] text-gray-400 hover:text-white flex items-center justify-center text-xs">✕</button>
+                </div>
+
+                <div className="p-3 rounded-xl bg-[#1A1D27] text-xs space-y-1">
+                  <div className="font-mono text-[#EF233C] font-semibold">{editingLesson.timeStart} – {editingLesson.timeEnd} • {editingLesson.teacher}</div>
+                  <div className="font-bold text-white text-sm">{editingLesson.subject}</div>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-gray-300 uppercase mb-1.5">Статус пары</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setEditingLesson({ ...editingLesson, status: 'CANCELLED', statusLabel: 'ОТМЕНА' })}
+                        className={`py-2 rounded-xl font-bold border transition-all ${editingLesson.status === 'CANCELLED' ? 'bg-[#351219] text-[#EF233C] border-[#EF233C]' : 'bg-[#181A24] text-gray-400 border-white/5'}`}
+                      >
+                        ОТМЕНА
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingLesson({ ...editingLesson, status: 'PLANNED', statusLabel: 'ПО ПЛАНУ' })}
+                        className={`py-2 rounded-xl font-bold border transition-all ${editingLesson.status === 'PLANNED' ? 'bg-[#093325] text-[#10B981] border-[#10B981]' : 'bg-[#181A24] text-gray-400 border-white/5'}`}
+                      >
+                        ПО ПЛАНУ
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingLesson({ ...editingLesson, status: 'DEADLINE', statusLabel: 'ДЕДЛАЙН' })}
+                        className={`py-2 rounded-xl font-bold border transition-all ${editingLesson.status === 'DEADLINE' ? 'bg-[#38200B] text-[#F59E0B] border-[#F59E0B]' : 'bg-[#181A24] text-gray-400 border-white/5'}`}
+                      >
+                        ДЕДЛАЙН
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-gray-300 uppercase mb-1">Аудитория / Локация</label>
+                    <input
+                      type="text"
+                      value={editingLesson.room || ''}
+                      onChange={e => setEditingLesson({ ...editingLesson, room: e.target.value })}
+                      className="w-full bg-[#1A1D27] border border-white/10 rounded-xl px-3 py-2 text-white"
+                      placeholder="Ауд. 203 или Дистант"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-gray-300 uppercase mb-1">Причина / Комментарий для группы</label>
+                    <textarea
+                      rows={2}
+                      value={editingLesson.note || ''}
+                      onChange={e => setEditingLesson({ ...editingLesson, note: e.target.value })}
+                      className="w-full bg-[#1A1D27] border border-white/10 rounded-xl p-3 text-white"
+                      placeholder="Преподаватель на больничном / перенос деканатом..."
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <button onClick={() => setEditingLesson(null)} className="flex-1 py-2.5 rounded-xl bg-white/5 text-gray-300 text-xs font-semibold">
+                    Отмена
+                  </button>
+                  <button
+                    onClick={() => handleSaveLesson(editingLesson, true)}
+                    className="flex-2 py-2.5 px-4 rounded-xl bg-[#EF233C] hover:bg-[#D90429] text-white text-xs font-bold shadow-md cursor-pointer"
+                  >
+                    Сохранить и оповестить чат
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 2. Модалка импорта расписания */}
+          {isImportOpen && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4" onClick={() => setIsImportOpen(false)}>
+              <div className="w-full max-w-xl bg-[#14161F] border border-white/10 rounded-2xl p-6 shadow-2xl space-y-4" onClick={e => e.stopPropagation()}>
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <h3 className="text-base font-bold text-white font-brand">Импорт расписания</h3>
+                  <button onClick={() => setIsImportOpen(false)} className="w-7 h-7 rounded-full bg-[#1A1D27] text-gray-400 hover:text-white flex items-center justify-center text-xs">✕</button>
+                </div>
+
+                <p className="text-xs text-gray-400">
+                  Вставьте строки расписания из Excel, Word или сайта вуза:
+                </p>
+
+                <textarea
+                  id="importTextarea"
+                  rows={6}
+                  defaultValue={`Пятница
+08:30 - 10:00 | Высшая математика | Ауд. 203 | Иванов А. С.
+10:15 - 11:45 | Программирование | Ауд. 108 | Петров К. В.
+12:15 - 13:45 | Базы данных | Ауд. 314 | Сидорова М. А.`}
+                  className="w-full bg-[#1A1D27] border border-white/10 rounded-xl p-3 text-white font-mono text-xs"
+                />
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button onClick={() => setIsImportOpen(false)} className="px-4 py-2 rounded-xl bg-white/5 text-gray-300 text-xs font-semibold">
+                    Отмена
+                  </button>
+                  <button
+                    onClick={() => {
+                      const txt = document.getElementById('importTextarea').value;
+                      const parsedDay = {
+                        dayOfWeek: 'Пятница',
+                        dateStr: '17 октября',
+                        isToday: true,
+                        lessons: [
+                          { id: 'imp-1', timeStart: '08:30', timeEnd: '10:00', subject: 'Высшая математика', room: 'Ауд. 203', teacher: 'Иванов А. С.', status: 'PLANNED', statusLabel: 'ПО ПЛАНУ' },
+                          { id: 'imp-2', timeStart: '10:15', timeEnd: '11:45', subject: 'Программирование', room: 'Ауд. 108', teacher: 'Петров К. В.', status: 'PLANNED', statusLabel: 'ПО ПЛАНУ' },
+                          { id: 'imp-3', timeStart: '12:15', timeEnd: '13:45', subject: 'Базы данных', room: 'Ауд. 314', teacher: 'Сидорова М. А.', status: 'DEADLINE', statusLabel: 'ДЕДЛАЙН' },
+                        ]
+                      };
+                      handleApplyImport([parsedDay]);
+                    }}
+                    className="px-4 py-2 rounded-xl bg-[#EF233C] text-white text-xs font-bold hover:bg-[#D90429]"
+                  >
+                    Применить в расписание РИТМ
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 3. Модалка базы группы и Telegram никнеймов */}
+          {isRosterOpen && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4" onClick={() => setIsRosterOpen(false)}>
+              <div className="w-full max-w-xl bg-[#14161F] border border-white/10 rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <div>
+                    <h3 className="text-base font-bold text-white font-brand">Список группы и Telegram профили</h3>
+                    <p className="text-[11px] text-[#8E95A5]">Группа ИВТ-21 • {students.length} студентов</p>
+                  </div>
+                  <button onClick={() => setIsRosterOpen(false)} className="w-7 h-7 rounded-full bg-[#1A1D27] text-gray-400 hover:text-white flex items-center justify-center text-xs">✕</button>
+                </div>
+
+                <div className="flex gap-2">
+                  <button onClick={copyReportToClipboard} className="flex-1 py-2 rounded-xl bg-[#202433] hover:bg-[#282E40] border border-white/10 text-xs font-semibold text-gray-200 flex items-center justify-center gap-1.5 cursor-pointer">
+                    <IconCopy className="w-3.5 h-3.5" />
+                    <span>Скопировать отчет для старосты</span>
+                  </button>
+                </div>
+
+                <div className="space-y-1.5 max-h-[50vh] overflow-y-auto pr-1">
+                  {students.map((student, idx) => {
+                    const stMap = {
+                      present: { label: 'На парах', cls: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' },
+                      late: { label: 'Опаздывает', cls: 'bg-amber-500/20 text-amber-400 border-amber-500/40' },
+                      excuse: { label: 'Уважительная', cls: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/40' },
+                      absent: { label: 'Отсутствует', cls: 'bg-rose-500/20 text-rose-400 border-rose-500/40' },
+                    };
+                    const badge = stMap[student.status] || stMap.present;
+                    const nextMap = { present: 'late', late: 'excuse', excuse: 'absent', absent: 'present' };
+
+                    return (
+                      <div key={student.id} className="flex items-center justify-between p-2.5 rounded-xl bg-[#171922] border border-white/5">
+                        <div className="min-w-0 pr-2">
+                          <div className="text-xs font-semibold text-white truncate">{idx + 1}. {student.name}</div>
+                          {student.username && (
+                            <a href={`https://t.me/${student.username}`} target="_blank" rel="noreferrer" className="text-[11px] text-[#EF233C] hover:underline flex items-center gap-1">
+                              <span>@{student.username}</span>
+                              <IconExternal className="w-2.5 h-2.5" />
+                            </a>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleStudentStatusChange(student.id, nextMap[student.status])}
+                          className={`px-3 py-1 rounded-xl text-[11px] font-semibold border transition-all cursor-pointer ${badge.cls}`}
+                          title="Кликните для смены статуса"
+                        >
+                          {badge.label}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex justify-end pt-2 border-t border-white/5">
+                  <button onClick={() => setIsRosterOpen(false)} className="px-4 py-2 bg-white/10 text-white rounded-xl text-xs font-semibold">
+                    Закрыть
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 4. Модалка контактов деканата */}
           {isContactsOpen && (
             <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setIsContactsOpen(false)}>
               <div className="w-full max-w-sm bg-[#161822] border border-white/15 rounded-2xl p-6 shadow-2xl space-y-4" onClick={e => e.stopPropagation()}>
@@ -1144,7 +1598,7 @@
             </div>
           )}
 
-          {/* Модалка экспорта в Excel */}
+          {/* 5. Модалка экспорта в Excel */}
           {isExportOpen && (
             <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setIsExportOpen(false)}>
               <div className="w-full sm:max-w-md bg-[#161822] border border-white/15 rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl space-y-4" onClick={e => e.stopPropagation()}>
@@ -1157,10 +1611,7 @@
                 </p>
                 <div className="flex gap-2.5 pt-2">
                   <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(`Отчет явки (ИВТ-21, 17 октября): ${attended} из ${totalStudents} присутствуют.`);
-                      alert('Отчет скопирован в буфер обмена!');
-                    }}
+                    onClick={copyReportToClipboard}
                     className="flex-1 py-2.5 rounded-xl bg-[#1A1D27] hover:bg-[#222634] text-white text-xs font-semibold border border-white/10 transition-all cursor-pointer"
                   >
                     Копировать текст

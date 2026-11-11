@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
-import { ArrowRight, Info, MapPin, User, Clock } from 'lucide-react';
+import { ArrowRight, Info, MapPin, User, Clock, Edit3, AlertCircle } from 'lucide-react';
 import { Lesson } from '../types';
 
 interface ScheduleCardProps {
   lessons: Lesson[];
   onViewAll?: () => void;
   onLessonSelect?: (lesson: Lesson) => void;
+  onEditLesson?: (lesson: Lesson) => void;
 }
 
 export const ScheduleCard: React.FC<ScheduleCardProps> = ({
   lessons,
   onViewAll,
   onLessonSelect,
+  onEditLesson,
 }) => {
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
 
@@ -23,6 +25,10 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({
         return 'bg-[#093325] text-[#10B981] border border-[#10B981]/50';
       case 'DEADLINE':
         return 'bg-[#38200B] text-[#F59E0B] border border-[#F59E0B]/50';
+      case 'RESCHEDULED':
+        return 'bg-[#2E1065] text-[#A78BFA] border border-[#8B5CF6]/50';
+      case 'ONLINE':
+        return 'bg-[#082F49] text-[#38BDF8] border border-[#0284C7]/50';
       default:
         return 'bg-[#1A1D27] text-gray-300 border border-white/10';
     }
@@ -57,46 +63,52 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({
 
       {/* Список пар */}
       <div className="space-y-3.5">
-        {lessons.map((lesson, idx) => (
-          <div
-            key={lesson.id}
-            onClick={() => handleLessonClick(lesson)}
-            className={`group relative flex items-center justify-between p-3.5 rounded-xl hover:bg-[#1A1D27]/60 transition-colors cursor-pointer ${
-              idx !== lessons.length - 1 ? 'border-b border-white/[0.04] pb-4' : ''
-            }`}
-          >
-            {/* Левая колонка: Время и Аудитория */}
-            <div className="w-28 sm:w-32 shrink-0">
-              <div className="text-[13px] font-bold text-white tracking-tight font-mono">
-                {`${lesson.timeStart} – ${lesson.timeEnd}`}
-              </div>
-              <div className="text-[11px] text-[#8E95A5] mt-0.5 font-medium">
-                {lesson.room}
-              </div>
-            </div>
-
-            {/* Центральная колонка: Предмет и Преподаватель */}
-            <div className="flex-1 px-3 sm:px-4 min-w-0">
-              <div className="text-[13px] font-semibold text-white truncate group-hover:text-red-400 transition-colors">
-                {lesson.subject}
-              </div>
-              <div className="text-[11px] text-[#8E95A5] truncate mt-0.5">
-                {lesson.teacher}
-              </div>
-            </div>
-
-            {/* Правая колонка: Бейдж статуса */}
-            <div className="shrink-0 pl-1">
-              <span
-                className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase select-none transition-transform group-hover:scale-105 shadow-sm ${getBadgeStyle(
-                  lesson.status
-                )}`}
-              >
-                {lesson.statusLabel}
-              </span>
-            </div>
+        {lessons.length === 0 ? (
+          <div className="py-8 text-center text-xs text-gray-400">
+            На сегодня занятий нет
           </div>
-        ))}
+        ) : (
+          lessons.map((lesson, idx) => (
+            <div
+              key={lesson.id}
+              onClick={() => handleLessonClick(lesson)}
+              className={`group relative flex items-center justify-between p-3.5 rounded-xl hover:bg-[#1A1D27]/60 transition-colors cursor-pointer ${
+                idx !== lessons.length - 1 ? 'border-b border-white/[0.04] pb-4' : ''
+              }`}
+            >
+              {/* Левая колонка: Время и Аудитория */}
+              <div className="w-28 sm:w-32 shrink-0">
+                <div className="text-[13px] font-bold text-white tracking-tight font-mono">
+                  {`${lesson.timeStart} – ${lesson.timeEnd}`}
+                </div>
+                <div className="text-[11px] text-[#8E95A5] mt-0.5 font-medium">
+                  {lesson.room}
+                </div>
+              </div>
+
+              {/* Центральная колонка: Предмет и Преподаватель */}
+              <div className="flex-1 px-3 sm:px-4 min-w-0">
+                <div className="text-[13px] font-semibold text-white truncate group-hover:text-red-400 transition-colors">
+                  {lesson.subject}
+                </div>
+                <div className="text-[11px] text-[#8E95A5] truncate mt-0.5">
+                  {lesson.teacher}
+                </div>
+              </div>
+
+              {/* Правая колонка: Бейдж статуса */}
+              <div className="shrink-0 pl-1">
+                <span
+                  className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase select-none transition-transform group-hover:scale-105 shadow-sm ${getBadgeStyle(
+                    lesson.status
+                  )}`}
+                >
+                  {lesson.statusLabel}
+                </span>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Модальное окно деталей занятия */}
@@ -158,12 +170,29 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({
               </div>
             )}
 
-            <button
-              onClick={() => setSelectedLesson(null)}
-              className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold active:scale-98 transition-all cursor-pointer"
-            >
-              Закрыть
-            </button>
+            {/* Действия для старосты */}
+            <div className="pt-2 flex items-center gap-2">
+              {onEditLesson && (
+                <button
+                  onClick={() => {
+                    const l = selectedLesson;
+                    setSelectedLesson(null);
+                    onEditLesson(l);
+                  }}
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-[#EF233C]/15 hover:bg-[#EF233C]/25 border border-[#EF233C]/40 text-[#EF233C] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>Отмена / перенос</span>
+                </button>
+              )}
+
+              <button
+                onClick={() => setSelectedLesson(null)}
+                className="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold active:scale-98 transition-all cursor-pointer"
+              >
+                Закрыть
+              </button>
+            </div>
           </div>
         </div>
       )}

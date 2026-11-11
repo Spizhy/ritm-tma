@@ -6,23 +6,29 @@ import { INITIAL_ATTENDANCE_OPTIONS } from '../data/mockData';
 interface AttendanceCardProps {
   onHaptic?: (type: 'medium' | 'success') => void;
   onExport?: () => void;
+  onOpenRoster?: () => void;
   isDesktopLayout?: boolean;
+  totalStudents?: number;
+  counts?: { [key in AttendanceStatus]: number };
 }
 
 export const AttendanceCard: React.FC<AttendanceCardProps> = ({
   onHaptic,
   onExport,
+  onOpenRoster,
   isDesktopLayout = false,
+  totalStudents = 28,
+  counts: externalCounts,
 }) => {
   const [selectedStatus, setSelectedStatus] = useState<AttendanceStatus>('present');
-  const [counts, setCounts] = useState<{ [key in AttendanceStatus]: number }>({
+  const [internalCounts, setInternalCounts] = useState<{ [key in AttendanceStatus]: number }>({
     present: 20,
     late: 2,
     excuse: 2,
     absent: 4,
   });
 
-  const totalStudents = 28;
+  const counts = externalCounts || internalCounts;
   const attendedCount = counts.present + counts.late + counts.excuse; // 24 из 28
   const attendancePercent = Math.round((attendedCount / totalStudents) * 100);
 
@@ -31,7 +37,7 @@ export const AttendanceCard: React.FC<AttendanceCardProps> = ({
 
     if (onHaptic) onHaptic('medium');
 
-    setCounts((prev) => {
+    setInternalCounts((prev) => {
       const copy = { ...prev };
       if (selectedStatus && copy[selectedStatus] > 0) {
         copy[selectedStatus] -= 1;
@@ -59,14 +65,26 @@ export const AttendanceCard: React.FC<AttendanceCardProps> = ({
   return (
     <div className="w-full bg-[#13151B] rounded-[20px] border border-white/[0.08] p-5 sm:p-6 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
       {/* Шапка блока переклички */}
-      <div className="flex items-center gap-2 mb-5">
-        <Users className="w-4 h-4 text-gray-300" />
-        <h2 className="text-[15px] font-semibold text-white tracking-wide">
-          Перекличка
-        </h2>
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-2">
+          <Users className="w-4 h-4 text-gray-300" />
+          <h2 className="text-[15px] font-semibold text-white tracking-wide">
+            Перекличка
+          </h2>
+        </div>
+
+        {onOpenRoster && (
+          <button
+            onClick={onOpenRoster}
+            className="text-xs text-[#8E95A5] hover:text-white transition-colors cursor-pointer flex items-center gap-1 font-medium"
+          >
+            <span>Список группы</span>
+            <span className="text-[10px] text-gray-500">→</span>
+          </button>
+        )}
       </div>
 
-      {/* Кнопки статуса: 2x2 на мобайле, 1x4 на десктопе */}
+      {/* Кнопки статуса: 2x2 на мобайле, 1x4 на десктопе (точно по дизайну) */}
       <div
         className={`grid gap-3 mb-6 ${
           isDesktopLayout ? 'grid-cols-4' : 'grid-cols-2'
@@ -96,9 +114,13 @@ export const AttendanceCard: React.FC<AttendanceCardProps> = ({
       {/* Нижняя информационная строка: прогресс явки и кнопка выгрузки */}
       <div className="space-y-3">
         <div className="flex items-center justify-between text-xs font-medium text-gray-200">
-          <div className="flex items-center gap-1.5 font-sans">
-            <span className="text-[#8E95A5]">Явка:</span>
-            <span className="font-bold text-white">
+          <div
+            onClick={onOpenRoster}
+            className="flex items-center gap-1.5 font-sans cursor-pointer group"
+            title="Открыть список студентов группы"
+          >
+            <span className="text-[#8E95A5] group-hover:text-gray-300 transition-colors">Явка:</span>
+            <span className="font-bold text-white group-hover:underline">
               {`${attendedCount} из ${totalStudents}`}
             </span>
             <span className="text-[#8E95A5] font-mono">({attendancePercent}%)</span>

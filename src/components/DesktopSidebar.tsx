@@ -19,17 +19,20 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   ];
 
   return (
-    <aside className="w-64 shrink-0 flex flex-col justify-between py-8 px-5 border-r border-white/[0.07] min-h-[660px]">
+    <aside className="w-64 shrink-0 flex flex-col justify-between py-8 px-6 border-r border-white/[0.07] min-h-[660px]">
       <div>
-        {/* Логотип РИТМ со скошенными красными полосками (1 в 1 со скриншота) */}
-        <div className="mb-10 px-2 cursor-pointer select-none" onClick={() => onSelectTab('home')}>
-          <div className="flex items-center gap-1.5 mb-2">
-            <div className="w-2 h-7 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
-            <div className="w-2 h-7 bg-[#EF233C] rounded-full transform -skew-x-[22deg]"></div>
+        {/* Логотип // РИТМ (точно по скриншоту в одну строку) */}
+        <div
+          className="flex items-center gap-2.5 mb-10 px-1 cursor-pointer select-none"
+          onClick={() => onSelectTab('home')}
+        >
+          <div className="flex items-center gap-1 shrink-0">
+            <div className="w-1.5 h-6 bg-[#EF233C] rounded-full transform -skew-x-[22deg]" />
+            <div className="w-1.5 h-6 bg-[#EF233C] rounded-full transform -skew-x-[22deg]" />
           </div>
-          <div className="font-['NauryzRedKeds','Unbounded',sans-serif] text-3xl tracking-widest text-white leading-none">
+          <span className="font-['NauryzRedKeds','Unbounded',sans-serif] text-2xl tracking-widest text-white leading-none">
             РИТМ
-          </div>
+          </span>
         </div>
 
         {/* Навигация */}

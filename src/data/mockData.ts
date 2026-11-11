@@ -1,4 +1,4 @@
-import { Lesson, AttendanceOption, DaySchedule } from '../types';
+import { Lesson, AttendanceOption, DaySchedule, Student, CancellationAlert } from '../types';
 
 export const CURRENT_WEEK_INFO = {
   dayOfWeek: 'Пятница',
@@ -9,7 +9,7 @@ export const CURRENT_WEEK_INFO = {
   userName: 'Иван Борисов',
 };
 
-export const TODAY_LESSONS: Lesson[] = [
+export const INITIAL_TODAY_LESSONS: Lesson[] = [
   {
     id: 'lesson-1',
     timeStart: '08:30',
@@ -20,6 +20,8 @@ export const TODAY_LESSONS: Lesson[] = [
     status: 'CANCELLED',
     statusLabel: 'ОТМЕНА',
     note: 'Преподаватель на научной конференции. Занятие будет перенесено.',
+    weekday: 'Пятница',
+    weekType: 'all',
   },
   {
     id: 'lesson-2',
@@ -31,6 +33,8 @@ export const TODAY_LESSONS: Lesson[] = [
     status: 'PLANNED',
     statusLabel: 'ПО ПЛАНУ',
     note: 'Лабораторная работа №4. Принести ноутбуки.',
+    weekday: 'Пятница',
+    weekType: 'all',
   },
   {
     id: 'lesson-3',
@@ -42,8 +46,22 @@ export const TODAY_LESSONS: Lesson[] = [
     status: 'DEADLINE',
     statusLabel: 'ДЕДЛАЙН',
     note: 'Сдача курсового проекта до 23:59!',
+    weekday: 'Пятница',
+    weekType: 'all',
   },
 ];
+
+export const INITIAL_CANCELLATION_ALERT: CancellationAlert = {
+  id: 'alert-1',
+  lessonId: 'lesson-1',
+  subject: 'Высшая математика',
+  time: '08:30 – 10:00',
+  status: 'CANCELLED',
+  statusLabel: 'ОТМЕНА',
+  dateStr: 'Сегодня, 08:00',
+  reason: 'Занятие по математике отменено в связи с участием Иванова А. С. в конференции. Перенос согласовывается.',
+  timestamp: '08:00',
+};
 
 export const INITIAL_ATTENDANCE_OPTIONS: AttendanceOption[] = [
   {
@@ -84,7 +102,7 @@ export const INITIAL_ATTENDANCE_OPTIONS: AttendanceOption[] = [
   },
 ];
 
-export const FULL_WEEK_SCHEDULE: DaySchedule[] = [
+export const INITIAL_WEEK_SCHEDULE: DaySchedule[] = [
   {
     dayOfWeek: 'Понедельник',
     dateStr: '13 октября',
@@ -99,6 +117,7 @@ export const FULL_WEEK_SCHEDULE: DaySchedule[] = [
         teacher: 'Соколов В. П.',
         status: 'PLANNED',
         statusLabel: 'ПО ПЛАНУ',
+        weekday: 'Понедельник',
       },
       {
         id: 'mon-2',
@@ -109,6 +128,7 @@ export const FULL_WEEK_SCHEDULE: DaySchedule[] = [
         teacher: 'Белова О. Н.',
         status: 'PLANNED',
         statusLabel: 'ПО ПЛАНУ',
+        weekday: 'Понедельник',
       },
     ],
   },
@@ -126,6 +146,7 @@ export const FULL_WEEK_SCHEDULE: DaySchedule[] = [
         teacher: 'Григорьев С. А.',
         status: 'PLANNED',
         statusLabel: 'ПО ПЛАНУ',
+        weekday: 'Вторник',
       },
       {
         id: 'tue-2',
@@ -136,6 +157,7 @@ export const FULL_WEEK_SCHEDULE: DaySchedule[] = [
         teacher: 'Миронов Д. Д.',
         status: 'PLANNED',
         statusLabel: 'ПО ПЛАНУ',
+        weekday: 'Вторник',
       },
     ],
   },
@@ -153,6 +175,7 @@ export const FULL_WEEK_SCHEDULE: DaySchedule[] = [
         teacher: 'Николаев А. Е.',
         status: 'PLANNED',
         statusLabel: 'ПО ПЛАНУ',
+        weekday: 'Среда',
       },
       {
         id: 'wed-2',
@@ -163,6 +186,7 @@ export const FULL_WEEK_SCHEDULE: DaySchedule[] = [
         teacher: 'Николаев А. Е.',
         status: 'DEADLINE',
         statusLabel: 'ДЕДЛАЙН',
+        weekday: 'Среда',
       },
     ],
   },
@@ -180,6 +204,7 @@ export const FULL_WEEK_SCHEDULE: DaySchedule[] = [
         teacher: 'Ковалев П. С.',
         status: 'PLANNED',
         statusLabel: 'ПО ПЛАНУ',
+        weekday: 'Четверг',
       },
       {
         id: 'thu-2',
@@ -190,6 +215,7 @@ export const FULL_WEEK_SCHEDULE: DaySchedule[] = [
         teacher: 'Ковалев П. С.',
         status: 'PLANNED',
         statusLabel: 'ПО ПЛАНУ',
+        weekday: 'Четверг',
       },
     ],
   },
@@ -197,37 +223,55 @@ export const FULL_WEEK_SCHEDULE: DaySchedule[] = [
     dayOfWeek: 'Пятница',
     dateStr: '17 октября',
     isToday: true,
-    lessons: TODAY_LESSONS,
+    lessons: INITIAL_TODAY_LESSONS,
+  },
+  {
+    dayOfWeek: 'Суббота',
+    dateStr: '18 октября',
+    isToday: false,
+    lessons: [
+      {
+        id: 'sat-1',
+        timeStart: '09:00',
+        timeEnd: '10:30',
+        room: 'Онлайн',
+        subject: 'Английский язык',
+        teacher: 'Власова Е. М.',
+        status: 'PLANNED',
+        statusLabel: 'ПО ПЛАНУ',
+        weekday: 'Суббота',
+      },
+    ],
   },
 ];
 
-export const MOCK_STUDENTS = [
-  { id: '1', name: 'Борисов Иван', status: 'present' },
-  { id: '2', name: 'Алексеева Дарья', status: 'present' },
-  { id: '3', name: 'Васильев Максим', status: 'present' },
-  { id: '4', name: 'Громова Екатерина', status: 'present' },
-  { id: '5', name: 'Дмитриев Артем', status: 'late' },
-  { id: '6', name: 'Егоров Кирилл', status: 'present' },
-  { id: '7', name: 'Жукова Полина', status: 'excuse' },
-  { id: '8', name: 'Зайцев Роман', status: 'absent' },
-  { id: '9', name: 'Иванова София', status: 'present' },
-  { id: '10', name: 'Козлов Андрей', status: 'present' },
-  { id: '11', name: 'Кузнецова Анна', status: 'present' },
-  { id: '12', name: 'Лебедев Денис', status: 'late' },
-  { id: '13', name: 'Морозов Сергей', status: 'present' },
-  { id: '14', name: 'Новикова Алина', status: 'excuse' },
-  { id: '15', name: 'Павлов Никита', status: 'present' },
-  { id: '16', name: 'Романов Арсений', status: 'present' },
-  { id: '17', name: 'Смирнова Вероника', status: 'present' },
-  { id: '18', name: 'Тарасов Владислав', status: 'absent' },
-  { id: '19', name: 'Ушаков Илья', status: 'present' },
-  { id: '20', name: 'Федоров Егор', status: 'present' },
-  { id: '21', name: 'Харитонова Мария', status: 'present' },
-  { id: '22', name: 'Цветков Матвей', status: 'present' },
-  { id: '23', name: 'Чернов Тимофей', status: 'present' },
-  { id: '24', name: 'Шестакова Виктория', status: 'present' },
-  { id: '25', name: 'Щербаков Павел', status: 'absent' },
-  { id: '26', name: 'Юдина Ксения', status: 'present' },
-  { id: '27', name: 'Яковлев Даниил', status: 'present' },
-  { id: '28', name: 'Семенов Богдан', status: 'absent' },
+export const INITIAL_STUDENTS: Student[] = [
+  { id: '1', name: 'Борисов Иван (Староста)', username: 'spizhy', status: 'present', groupName: 'ИВТ-21' },
+  { id: '2', name: 'Алексеева Дарья', username: 'daria_alex', status: 'present', groupName: 'ИВТ-21' },
+  { id: '3', name: 'Васильев Максим', username: 'm_vasiliev', status: 'present', groupName: 'ИВТ-21' },
+  { id: '4', name: 'Громова Екатерина', username: 'katya_grom', status: 'present', groupName: 'ИВТ-21' },
+  { id: '5', name: 'Дмитриев Артем', username: 'artem_dmitr', status: 'late', groupName: 'ИВТ-21' },
+  { id: '6', name: 'Егоров Кирилл', username: 'kirill_eg', status: 'present', groupName: 'ИВТ-21' },
+  { id: '7', name: 'Жукова Полина', username: 'polina_zhuk', status: 'excuse', groupName: 'ИВТ-21' },
+  { id: '8', name: 'Зайцев Роман', username: 'roma_zaycev', status: 'absent', groupName: 'ИВТ-21' },
+  { id: '9', name: 'Иванова София', username: 'sofia_iva', status: 'present', groupName: 'ИВТ-21' },
+  { id: '10', name: 'Козлов Андрей', username: 'andrey_kozlov', status: 'present', groupName: 'ИВТ-21' },
+  { id: '11', name: 'Кузнецова Анна', username: 'anya_kuzn', status: 'present', groupName: 'ИВТ-21' },
+  { id: '12', name: 'Лебедев Денис', username: 'den_lebedev', status: 'late', groupName: 'ИВТ-21' },
+  { id: '13', name: 'Морозов Сергей', username: 'serg_moroz', status: 'present', groupName: 'ИВТ-21' },
+  { id: '14', name: 'Новикова Алина', username: 'alina_novik', status: 'excuse', groupName: 'ИВТ-21' },
+  { id: '15', name: 'Павлов Никита', username: 'nik_pavlov', status: 'present', groupName: 'ИВТ-21' },
+  { id: '16', name: 'Романов Арсений', username: 'arsen_romanov', status: 'present', groupName: 'ИВТ-21' },
+  { id: '17', name: 'Смирнова Вероника', username: 'nika_smirnova', status: 'present', groupName: 'ИВТ-21' },
+  { id: '18', name: 'Тарасов Владислав', username: 'vlad_tarasov', status: 'absent', groupName: 'ИВТ-21' },
+  { id: '19', name: 'Ушаков Илья', username: 'ilya_ushakov', status: 'present', groupName: 'ИВТ-21' },
+  { id: '20', name: 'Федоров Егор', username: 'egor_fed', status: 'present', groupName: 'ИВТ-21' },
+  { id: '21', name: 'Харитонова Мария', username: 'masha_khar', status: 'present', groupName: 'ИВТ-21' },
+  { id: '22', name: 'Цветков Матвей', username: 'matvey_tsvet', status: 'present', groupName: 'ИВТ-21' },
+  { id: '23', name: 'Чернов Тимофей', username: 'tim_chernov', status: 'present', groupName: 'ИВТ-21' },
+  { id: '24', name: 'Шестакова Виктория', username: 'vika_shest', status: 'present', groupName: 'ИВТ-21' },
+  { id: '25', name: 'Щербаков Павел', username: 'pavel_shcherb', status: 'absent', groupName: 'ИВТ-21' },
+  { id: '26', name: 'Юдина Ксения', username: 'ksenia_yud', status: 'present', groupName: 'ИВТ-21' },
+  { id: '27', name: 'Яковлев Даниил', username: 'dan_yakovlev', status: 'present', groupName: 'ИВТ-21' },
+  { id: '28', name: 'Семенов Богдан', username: 'bogdan_sem', status: 'absent', groupName: 'ИВТ-21' },
 ];

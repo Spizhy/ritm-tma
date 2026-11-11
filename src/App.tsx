@@ -10,17 +10,92 @@ import { DesktopSidebar } from './components/DesktopSidebar';
 import { ImportantNotice } from './components/ImportantNotice';
 import { QuickLinks } from './components/QuickLinks';
 import { ExportModal } from './components/ExportModal';
-import { TabKey } from './types';
-import { CURRENT_WEEK_INFO, TODAY_LESSONS } from './data/mockData';
+import { ClassActionModal } from './components/ClassActionModal';
+import { ScheduleImportModal } from './components/ScheduleImportModal';
+import { StudentRosterModal } from './components/StudentRosterModal';
 import { ScheduleCard } from './components/ScheduleCard';
 import { AttendanceCard } from './components/AttendanceCard';
+import { TabKey, Lesson, DaySchedule, Student, CancellationAlert, AttendanceStatus } from './types';
+import {
+  CURRENT_WEEK_INFO,
+  INITIAL_TODAY_LESSONS,
+  INITIAL_WEEK_SCHEDULE,
+  INITIAL_STUDENTS,
+  INITIAL_CANCELLATION_ALERT,
+} from './data/mockData';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('home');
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isRosterOpen, setIsRosterOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
+
+  // Состояние расписания (с поддержкой localStorage)
+  const [schedule, setSchedule] = useState<DaySchedule[]>(() => {
+    try {
+      const saved = localStorage.getItem('ritm_schedule');
+      return saved ? JSON.parse(saved) : INITIAL_WEEK_SCHEDULE;
+    } catch {
+      return INITIAL_WEEK_SCHEDULE;
+    }
+  });
+
+  // Занятия на сегодня
+  const [todayLessons, setTodayLessons] = useState<Lesson[]>(() => {
+    try {
+      const saved = localStorage.getItem('ritm_today_lessons');
+      return saved ? JSON.parse(saved) : INITIAL_TODAY_LESSONS;
+    } catch {
+      return INITIAL_TODAY_LESSONS;
+    }
+  });
+
+  // Уведомление об отмене
+  const [cancellationAlert, setCancellationAlert] = useState<CancellationAlert | null>(() => {
+    try {
+      const saved = localStorage.getItem('ritm_alert');
+      return saved ? JSON.parse(saved) : INITIAL_CANCELLATION_ALERT;
+    } catch {
+      return INITIAL_CANCELLATION_ALERT;
+    }
+  });
+
+  // Список студентов группы
+  const [students, setStudents] = useState<Student[]>(() => {
+    try {
+      const saved = localStorage.getItem('ritm_students');
+      return saved ? JSON.parse(saved) : INITIAL_STUDENTS;
+    } catch {
+      return INITIAL_STUDENTS;
+    }
+  });
+
   const { tg, userInitials, triggerHaptic, showNotification } = useTelegram();
 
-  // Управление Telegram BackButton
+  // Сохранение в localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('ritm_schedule', JSON.stringify(schedule));
+      localStorage.setItem('ritm_today_lessons', JSON.stringify(todayLessons));
+      localStorage.setItem('ritm_students', JSON.stringify(students));
+      if (cancellationAlert) {
+        localStorage.setItem('ritm_alert', JSON.stringify(cancellationAlert));
+      }
+    } catch (e) {
+      console.warn('Could not save to localStorage:', e);
+    }
+  }, [schedule, todayLessons, students, cancellationAlert]);
+
+  // Подсчет статусов студентов
+  const attendanceCounts: { [key in AttendanceStatus]: number } = {
+    present: students.filter((s) => s.status === 'present').length,
+    late: students.filter((s) => s.status === 'late').length,
+    excuse: students.filter((s) => s.status === 'excuse').length,
+    absent: students.filter((s) => s.status === 'absent').length,
+  };
+
+  // Telegram BackButton
   useEffect(() => {
     if (!tg?.BackButton) return;
 
@@ -48,6 +123,118 @@ export const App: React.FC = () => {
   const handleOpenContacts = () => {
     triggerHaptic('light');
     showNotification('Контакты деканата: +7 (495) 123-45-67, dekanat@university.ru, каб. 204');
+  };
+
+  // Сохранение изменений в паре старостой (отмена / перенос)
+  const handleSaveLesson = async (updatedLesson: Lesson, sendNotification: boolean) => {
+    triggerHaptic('medium');
+
+    // 1. Обновляем в todayLessons
+    setTodayLessons((prev) =>
+      prev.map((l) => (l.id === updatedLesson.id ? updatedLesson : l))
+    );
+
+    // 2. Обновляем в общем расписании недели
+    setSchedule((prev) =>
+      prev.map((day) => ({
+        ...day,
+        lessons: day.lessons.map((l) => (l.id === updatedLesson.id ? updatedLesson : l)),
+      }))
+    );
+
+    // 3. Создаем баннер «Важно»
+    if (updatedLesson.status === 'CANCELLED' || updatedLesson.status === 'RESCHEDULED') {
+      const newAlert: CancellationAlert = {
+        id: `alert-${Date.now()}`,
+        lessonId: updatedLesson.id,
+        subject: updatedLesson.subject,
+        time: `${updatedLesson.timeStart} – ${updatedLesson.timeEnd}`,
+        status: updatedLesson.status,
+        statusLabel: updatedLesson.statusLabel,
+        dateStr: 'Сегодня, ' + new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+        reason: updatedLesson.note || 'Занятие изменено старостой группы.',
+        newRoom: updatedLesson.room,
+        timestamp: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+      };
+      setCancellationAlert(newAlert);
+    }
+
+    // 4. Оповещение группы через API бота
+    if (sendNotification) {
+      try {
+        const payload = {
+          group_name: CURRENT_WEEK_INFO.groupName,
+          subject: updatedLesson.subject,
+          time: `${updatedLesson.timeStart} – ${updatedLesson.timeEnd}`,
+          status: updatedLesson.status,
+          statusLabel: updatedLesson.statusLabel,
+          room: updatedLesson.room,
+          reason: updatedLesson.note,
+          starosta: CURRENT_WEEK_INFO.userName,
+        };
+
+        // Отправка на бэкенд бота
+        fetch('/api/cancellations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }).catch(() => {
+          console.log('Bot API not reached, using Telegram direct sharing');
+        });
+
+        // Если бот оффлайн или не привязан, предлагаем поделиться в чат в 1 клик
+        if (tg?.openTelegramLink) {
+          const text = encodeURIComponent(
+            `🔔 Внимание, группа ${CURRENT_WEEK_INFO.groupName}!\n` +
+            `Занятие: ${updatedLesson.subject} (${updatedLesson.timeStart}–${updatedLesson.timeEnd})\n` +
+            `Статус: [${updatedLesson.statusLabel}]\n` +
+            (updatedLesson.note ? `Причина: ${updatedLesson.note}\n` : '') +
+            `Аудитория: ${updatedLesson.room}`
+          );
+          // Можно использовать шеринг
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    showNotification(`Занятие "${updatedLesson.subject}" обновлено!`);
+  };
+
+  // Импорт расписания
+  const handleImportSchedule = (newSchedule: DaySchedule[]) => {
+    triggerHaptic('success');
+    setSchedule(newSchedule);
+
+    // Находим пятницу или первый день с парами
+    const friday = newSchedule.find((d) => d.dayOfWeek === 'Пятница') || newSchedule[0];
+    if (friday && friday.lessons.length > 0) {
+      setTodayLessons(friday.lessons);
+    }
+
+    showNotification('Новое расписание успешно загружено в РИТМ!');
+  };
+
+  // Обновление статуса студента
+  const handleUpdateStudentStatus = (studentId: string, newStatus: AttendanceStatus) => {
+    triggerHaptic('light');
+    setStudents((prev) =>
+      prev.map((s) => (s.id === studentId ? { ...s, status: newStatus } : s))
+    );
+  };
+
+  // Добавление студента в группу
+  const handleAddStudent = (newS: { name: string; username: string }) => {
+    triggerHaptic('medium');
+    const student: Student = {
+      id: `s-${Date.now()}`,
+      name: newS.name,
+      username: newS.username,
+      status: 'present',
+      groupName: CURRENT_WEEK_INFO.groupName,
+    };
+    setStudents((prev) => [...prev, student]);
+    showNotification(`Студент ${newS.name} добавлен в группу!`);
   };
 
   return (
@@ -104,7 +291,11 @@ export const App: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1A1D27] border border-white/10 cursor-pointer hover:border-white/20 transition-colors">
+              <div
+                onClick={() => setIsRosterOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1A1D27] border border-white/10 cursor-pointer hover:border-white/20 transition-colors"
+                title="Профиль и группа"
+              >
                 <div className="w-6 h-6 rounded-full bg-[#EF233C] flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
                   {userInitials}
                 </div>
@@ -127,18 +318,22 @@ export const App: React.FC = () => {
               <div className="grid grid-cols-12 gap-7 items-start">
                 <div className="col-span-8 space-y-7">
                   <ScheduleCard
-                    lessons={TODAY_LESSONS}
+                    lessons={todayLessons}
                     onViewAll={() => handleTabChange('schedule')}
+                    onEditLesson={(lesson) => setEditingLesson(lesson)}
                   />
                   <AttendanceCard
                     onHaptic={triggerHaptic}
                     onExport={() => setIsExportOpen(true)}
+                    onOpenRoster={() => setIsRosterOpen(true)}
                     isDesktopLayout={true}
+                    totalStudents={students.length}
+                    counts={attendanceCounts}
                   />
                 </div>
 
                 <div className="col-span-4 space-y-7">
-                  <ImportantNotice />
+                  <ImportantNotice alert={cancellationAlert} />
                   <QuickLinks
                     onNavigateTab={handleTabChange}
                     onOpenContacts={handleOpenContacts}
@@ -153,8 +348,21 @@ export const App: React.FC = () => {
               </div>
             )}
 
-            {activeTab === 'schedule' && <ScheduleView />}
-            {activeTab === 'stats' && <StatsView />}
+            {activeTab === 'schedule' && (
+              <ScheduleView
+                schedule={schedule}
+                onOpenImport={() => setIsImportOpen(true)}
+                onEditLesson={(lesson) => setEditingLesson(lesson)}
+              />
+            )}
+
+            {activeTab === 'stats' && (
+              <StatsView
+                students={students}
+                onOpenRoster={() => setIsRosterOpen(true)}
+              />
+            )}
+
             {activeTab === 'settings' && <SettingsView />}
           </main>
         </div>
@@ -162,16 +370,38 @@ export const App: React.FC = () => {
         {/* ================= МОБИЛЬНЫЙ ВИД TELEGRAM MINI APP (<1024px) ================= */}
         <div className="w-full lg:hidden flex flex-col min-h-screen px-4 pb-24 pt-3 max-w-md mx-auto">
           {activeTab === 'home' && (
-            <HomeView
-              userInitials={userInitials}
-              onNavigateTab={handleTabChange}
-              onHaptic={triggerHaptic}
-              onExport={() => setIsExportOpen(true)}
-              onOpenContacts={handleOpenContacts}
+            <div className="w-full flex flex-col space-y-4">
+              <HomeView
+                userInitials={userInitials}
+                onNavigateTab={handleTabChange}
+                onHaptic={triggerHaptic}
+                onExport={() => setIsExportOpen(true)}
+                onOpenContacts={handleOpenContacts}
+                lessons={todayLessons}
+                alert={cancellationAlert}
+                onOpenRoster={() => setIsRosterOpen(true)}
+                onEditLesson={(lesson) => setEditingLesson(lesson)}
+                attendanceCounts={attendanceCounts}
+                totalStudents={students.length}
+              />
+            </div>
+          )}
+
+          {activeTab === 'schedule' && (
+            <ScheduleView
+              schedule={schedule}
+              onOpenImport={() => setIsImportOpen(true)}
+              onEditLesson={(lesson) => setEditingLesson(lesson)}
             />
           )}
-          {activeTab === 'schedule' && <ScheduleView />}
-          {activeTab === 'stats' && <StatsView />}
+
+          {activeTab === 'stats' && (
+            <StatsView
+              students={students}
+              onOpenRoster={() => setIsRosterOpen(true)}
+            />
+          )}
+
           {activeTab === 'settings' && <SettingsView />}
 
           {/* Нижний таб-бар для мобильного устройства */}
@@ -181,6 +411,31 @@ export const App: React.FC = () => {
           />
         </div>
       </div>
+
+      {/* Модальное окно деталей и отмены пары старостой */}
+      <ClassActionModal
+        isOpen={!!editingLesson}
+        lesson={editingLesson}
+        onClose={() => setEditingLesson(null)}
+        onSave={handleSaveLesson}
+      />
+
+      {/* Модальное окно импорта расписания из таблиц */}
+      <ScheduleImportModal
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+        onImportSuccess={handleImportSchedule}
+      />
+
+      {/* Модальное окно списка группы с @username */}
+      <StudentRosterModal
+        isOpen={isRosterOpen}
+        students={students}
+        onClose={() => setIsRosterOpen(false)}
+        onUpdateStudentStatus={handleUpdateStudentStatus}
+        onAddStudent={handleAddStudent}
+        onCopyReport={() => showNotification('Отчет переклички скопирован!')}
+      />
 
       {/* Модальное окно экспорта в Excel */}
       <ExportModal

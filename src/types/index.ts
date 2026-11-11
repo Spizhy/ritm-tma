@@ -1,4 +1,4 @@
-export type LessonStatus = 'CANCELLED' | 'PLANNED' | 'DEADLINE';
+export type LessonStatus = 'CANCELLED' | 'PLANNED' | 'DEADLINE' | 'RESCHEDULED' | 'ONLINE';
 
 export interface Lesson {
   id: string;
@@ -10,6 +10,8 @@ export interface Lesson {
   status: LessonStatus;
   statusLabel: string;
   note?: string;
+  weekday?: string; // "Понедельник", "Вторник", etc.
+  weekType?: 'all' | 'odd' | 'even';
 }
 
 export type AttendanceStatus = 'present' | 'late' | 'excuse' | 'absent';
@@ -24,10 +26,12 @@ export interface AttendanceOption {
   count: number;
 }
 
-export interface StudentAttendance {
+export interface Student {
   id: string;
-  fullName: string;
-  status: AttendanceStatus | null;
+  name: string;
+  username?: string; // Telegram @username without @ or with @
+  status: AttendanceStatus;
+  groupName: string;
   updatedAt?: string;
 }
 
@@ -36,6 +40,19 @@ export interface DaySchedule {
   dayOfWeek: string; // "Пятница"
   isToday: boolean;
   lessons: Lesson[];
+}
+
+export interface CancellationAlert {
+  id: string;
+  lessonId: string;
+  subject: string;
+  time: string;
+  status: LessonStatus;
+  statusLabel: string;
+  dateStr: string;
+  reason: string;
+  newRoom?: string;
+  timestamp: string;
 }
 
 export type TabKey = 'home' | 'schedule' | 'stats' | 'settings';
